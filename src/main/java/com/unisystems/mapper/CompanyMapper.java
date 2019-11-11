@@ -6,12 +6,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CompanyMapper {
+    //Map CompanyResponse from Company model
     public CompanyResponse mapCompanyResponseFromCompany(Company company) {
         CompanyResponse companyResponse = new CompanyResponse(
             company.getCompanyId(),
             company.getCompanyName(),
             company.getDescription(),
-                getCompanyTitle(company)
+            getCompanyTitle(company)
         );
         return companyResponse;
     }
