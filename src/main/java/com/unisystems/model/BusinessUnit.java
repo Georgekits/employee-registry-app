@@ -20,10 +20,6 @@ public class BusinessUnit {
 
     public BusinessUnit() {}
 
-    public BusinessUnit(String businessUnitName, String businessUnitDescription) {
-        this.businessUnitName = businessUnitName;
-        this.businessUnitDescription = businessUnitDescription;
-    }
 
     public BusinessUnit(String businessUnitName, String businessUnitDescription, Company companyRef) {
         this.businessUnitName = businessUnitName;
@@ -31,11 +27,7 @@ public class BusinessUnit {
         this.companyRef = companyRef;
     }
 
-    public BusinessUnit(String businessUnitName, String businessUnitDescription, Company companyRef, List<Department> departmentsList) {
-        this.businessUnitName = businessUnitName;
-        this.businessUnitDescription = businessUnitDescription;
-        this.companyRef = companyRef;
-    }
+
 
     public Long getBusinessUnitId() {
         return businessUnitId;
