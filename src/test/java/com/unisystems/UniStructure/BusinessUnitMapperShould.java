@@ -8,10 +8,10 @@ package com.unisystems.UniStructure;
         import org.junit.Before;
         import org.junit.Test;
 
+
 public class BusinessUnitMapperShould {
 
     private BusinessUnitMapper businessUnitMapper;
-
     private BusinessUnit businessUnitInput;
     private Company companyInput;
     private BusinessUnitResponse output;
