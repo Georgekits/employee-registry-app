@@ -1,5 +1,6 @@
 package com.unisystems;
 
+import com.unisystems.enums.EmployeeStatusEnum;
 import com.unisystems.model.*;
 import com.unisystems.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,20 +69,26 @@ public class UniStructureApplication implements CommandLineRunner {
 		unitRepository.save(thirdUnit);
 		unitRepository.save(fourthUnit);
 
-		Employee george = new Employee(1187,"Kitsos","George","Voutza35",
-				"6972659243","2019-03-01",null,true,"UniSystems","JSE");
+		Employee george = new Employee(1187,"Kitsos","George",
+				"Voutza35","6972659243","2019-03-01",
+				null, EmployeeStatusEnum.ACTIVE,"UniSystems","JSE");
 		george.setEmployeeUnitRef(firstUnit);
 
-		Employee elias = new Employee(8843,"Kotsikonas","Elias","Stamatiadou5",
-				"6962538645","2007-03-01",null,true,"UniSystems","SSE");
+		Employee elias = new Employee(8843,"Kotsikonas",
+				"Elias","Stamatiadou5","6962538645",
+				"2007-03-01",null,EmployeeStatusEnum.ACTIVE,
+				"UniSystems","SSE");
 		elias.setEmployeeUnitRef(secondUnit);
 
-		Employee stelios = new Employee(8934,"Georgalas","Stelios","PeristeriStreet",
-				"6983648576","2019-11-03","2020-04-03",true,"UniSystems","JJJSE");
+		Employee stelios = new Employee(8934,"Georgalas","Stelios",
+				"PeristeriStreet","6983648576","2019-11-03",
+				"2020-04-03",EmployeeStatusEnum.INACTIVE,"UniSystems","JJJSE");
 		stelios.setEmployeeUnitRef(firstUnit);
 
-		Employee dimitris = new Employee(2938,"Papanikolaou","Dimitris","Stamatiadou",
-				"6983628263","2019-11-09","2020-04-12",true,"UniSystems","HRConsultant");
+		Employee dimitris = new Employee(2938,"Papanikolaou",
+				"Dimitris","Stamatiadou","6983628263",
+				"2019-11-09","2020-04-12",EmployeeStatusEnum.INACTIVE,
+				"UniSystems","HRConsultant");
 		dimitris.setEmployeeUnitRef(fourthUnit);
 
 		employeeRepository.save(dimitris);

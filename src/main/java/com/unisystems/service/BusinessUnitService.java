@@ -26,7 +26,7 @@ public class BusinessUnitService {
         GenericResponse<GetAllBusinessUnitResponse> genericResponse = new GenericResponse<>();
 
         retrievedBusinessUnits.forEach((company) -> {
-            businessUnits.add(businessUnitMapper.mapCompanyResponseFromCompany(company));
+            businessUnits.add(businessUnitMapper.mapBUResponseFromBU(company));
         });
         genericResponse.setData(new GetAllBusinessUnitResponse(businessUnits));
         return genericResponse;

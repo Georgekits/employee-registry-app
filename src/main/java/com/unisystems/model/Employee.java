@@ -1,5 +1,7 @@
 package com.unisystems.model;
 
+import com.unisystems.enums.EmployeeStatusEnum;
+
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,7 +29,7 @@ public class Employee {
     @Column(name = "RELEASE_DATE", nullable = true)
     private Date releaseDate;
     @Column(name = "EMPLOYEE_STATUS") //boolean does not exits as SQL data type, H2 converts it to int? tinyInt?
-    private boolean employeeStatus;
+    private EmployeeStatusEnum employeeStatus;
     @Column(name = "CONTRACT_TYPE")
     private String contractType;
     @ManyToOne
@@ -40,7 +42,7 @@ public class Employee {
 
     public Employee(int registrationNumber, String lastName, String firstName, String addressStreet,
                     String phoneNumber, String recruitmentDate, String releaseDate,
-                    boolean employeeStatus, String contractType, String position) {
+                    EmployeeStatusEnum employeeStatus, String contractType, String position) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         //Set local timezone
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -51,6 +53,30 @@ public class Employee {
             System.out.println("Something went wrong with the date parsing, Employee constructor");
             e.printStackTrace();
         }
+        this.registrationNumber = registrationNumber;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.addressStreet = addressStreet;
+        this.phoneNumber = phoneNumber;
+        this.employeeStatus = employeeStatus;
+        this.contractType = contractType;
+        this.position = position;
+    }
+
+    public Employee(Long employeeId, int registrationNumber, String lastName, String firstName, String addressStreet,
+                    String phoneNumber, String recruitmentDate, String releaseDate,
+                    EmployeeStatusEnum employeeStatus, String contractType, String position) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        //Set local timezone
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+            this.recruitmentDate = recruitmentDate == null ? null : formatter.parse(recruitmentDate);
+            this.releaseDate = releaseDate == null ? null : formatter.parse(releaseDate);
+        } catch(Exception e) {
+            System.out.println("Something went wrong with the date parsing, Employee constructor");
+            e.printStackTrace();
+        }
+        this.employeeId = employeeId;
         this.registrationNumber = registrationNumber;
         this.lastName = lastName;
         this.firstName = firstName;
@@ -125,11 +151,11 @@ public class Employee {
         this.releaseDate = releaseDate;
     }
 
-    public boolean getEmployeeStatus() {
+    public EmployeeStatusEnum getEmployeeStatus() {
         return employeeStatus;
     }
 
-    public void setEmployeeStatus(boolean employeeStatus) {
+    public void setEmployeeStatus(EmployeeStatusEnum employeeStatus) {
         this.employeeStatus = employeeStatus;
     }
 
@@ -162,11 +188,22 @@ public class Employee {
         if (this == o) return true;
         if (!(o instanceof Employee)) return false;
         Employee employee = (Employee) o;
-        return employeeId.equals(employee.employeeId);
+        return getRegistrationNumber() == employee.getRegistrationNumber() &&
+                getEmployeeId().equals(employee.getEmployeeId()) &&
+                getLastName().equals(employee.getLastName()) &&
+                getFirstName().equals(employee.getFirstName()) &&
+                getAddressStreet().equals(employee.getAddressStreet()) &&
+                getPhoneNumber().equals(employee.getPhoneNumber()) &&
+                getRecruitmentDate().equals(employee.getRecruitmentDate()) &&
+                getReleaseDate().equals(employee.getReleaseDate()) &&
+                getEmployeeStatus() == employee.getEmployeeStatus() &&
+                getContractType().equals(employee.getContractType()) &&
+                getEmployeeUnitRef().equals(employee.getEmployeeUnitRef()) &&
+                getPosition().equals(employee.getPosition());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(employeeId);
+        return Objects.hash(getEmployeeId(), getRegistrationNumber(), getLastName(), getFirstName(), getAddressStreet(), getPhoneNumber(), getRecruitmentDate(), getReleaseDate(), getEmployeeStatus(), getContractType(), getEmployeeUnitRef(), getPosition());
     }
 }

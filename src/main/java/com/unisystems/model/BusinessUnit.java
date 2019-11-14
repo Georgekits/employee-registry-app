@@ -20,14 +20,11 @@ public class BusinessUnit {
 
     public BusinessUnit() {}
 
-
     public BusinessUnit(String businessUnitName, String businessUnitDescription, Company companyRef) {
         this.businessUnitName = businessUnitName;
         this.businessUnitDescription = businessUnitDescription;
         this.companyRef = companyRef;
     }
-
-
 
     public Long getBusinessUnitId() {
         return businessUnitId;

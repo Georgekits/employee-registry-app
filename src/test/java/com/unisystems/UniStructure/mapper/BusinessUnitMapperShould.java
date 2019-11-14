@@ -1,4 +1,4 @@
-package com.unisystems.UniStructure;
+package com.unisystems.UniStructure.mapper;
 
         import com.unisystems.mapper.BusinessUnitMapper;
         import com.unisystems.model.BusinessUnit;
@@ -25,7 +25,7 @@ public class BusinessUnitMapperShould {
         businessUnitInput = new BusinessUnit("PublicSector",
                 "That's the business unit that is well known as Public Sector", companyInput);
         businessUnitInput.setBusinessUnitId(Long.valueOf(200));
-        output = businessUnitMapper.mapCompanyResponseFromCompany(businessUnitInput);
+        output = businessUnitMapper.mapBUResponseFromBU(businessUnitInput);
     }
 
 

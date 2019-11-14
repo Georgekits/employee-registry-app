@@ -26,6 +26,13 @@ public class Unit {
         this.departmentRef = departmentRef;
     }
 
+    public Unit(Long unitId, String unitName, String unitDescription, Department departmentRef) {
+        this.unitId = unitId;
+        this.unitName = unitName;
+        this.unitDescription = unitDescription;
+        this.departmentRef = departmentRef;
+    }
+
     public Long getUnitId() {
         return unitId;
     }
