@@ -1,6 +1,7 @@
 package com.unisystems;
 
 import com.unisystems.enums.EmployeeStatusEnum;
+import com.unisystems.enums.TaskStatusEnum;
 import com.unisystems.model.*;
 import com.unisystems.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class UniStructureApplication implements CommandLineRunner {
 
 	@Autowired
 	UnitRepository unitRepository;
+
+	@Autowired
+	TaskRepository taskRepository;
 
 	public static void main(String[] args) {SpringApplication.run(UniStructureApplication.class, args);}
 
@@ -95,5 +99,12 @@ public class UniStructureApplication implements CommandLineRunner {
 		employeeRepository.save(george);
 		employeeRepository.save(elias);
 		employeeRepository.save(stelios);
+		//Tasks
+		Task newPortal = new Task("New Portal","This is a task for making a new portal",5,9,8, TaskStatusEnum.NEW);
+		newPortal.getUpdates().add("new");
+		taskRepository.save(newPortal);
+		Task newTroll = new Task("New trol","This is a task for making a new portal",3,4,4, TaskStatusEnum.NEW);
+		newTroll.getUpdates().add("trololo");
+		taskRepository.save(newTroll);
 	}
 }
