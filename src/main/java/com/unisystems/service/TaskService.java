@@ -6,6 +6,7 @@ import com.unisystems.repository.TaskRepository;
 import com.unisystems.response.TaskResponse;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllTaskResponse;
+import com.unisystems.response.getAllResponse.GetTaskByIdResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,10 @@ public class TaskService {
         }
         response.setData(new GetAllTaskResponse(tasksList));
         return response;
+    }
+
+    public GenericResponse<GetTaskByIdResponse> findById(String taskId) {
+        List<Task> retrievedTasks = (List<Task>) taskRepository.findAll();
+        return taskMapper.getGenericResponseById(taskId, retrievedTasks);
     }
 }

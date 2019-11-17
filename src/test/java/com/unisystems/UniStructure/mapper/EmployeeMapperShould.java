@@ -50,8 +50,7 @@ public class EmployeeMapperShould {
         //Fetch output from mapper
         output = employeeMapper.mapEmployeeResponseFromEmployee(employeeInput);
         employeeResponse = new EmployeeResponse(1L,8843,"Elias Kotsikonas",
-                "6962538645","PRESENT",EmployeeStatusEnum.ACTIVE,
-                "UniSystems","FirstUnit","SSE");
+                "6962538645","PRESENT",EmployeeStatusEnum.ACTIVE,"UniSystems","FirstUnit","SSE");
     }
 
     @Test

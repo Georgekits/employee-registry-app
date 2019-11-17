@@ -26,7 +26,7 @@ public class Task {
     @ElementCollection
     private List<String> updates = new ArrayList<String>();
     @ManyToMany
-    @JoinColumn(name = "EMPLOYEE_REF", referencedColumnName = "employeeId")
+    @JoinColumn(name = "EMPLOYEE_LIST", referencedColumnName = "employeeId")
     private List<Employee> employeesList;
 
     public Task() {}
@@ -54,14 +54,6 @@ public class Task {
 
     public void setDesc(String desc) {
         this.desc = desc;
-    }
-
-    public List<Employee> getEmployeeRef() {
-        return employeesList;
-    }
-
-    public void setEmployeeRef(List<Employee> employee) {
-        this.employeesList = employee;
     }
 
     public String getTitle() {
@@ -110,5 +102,13 @@ public class Task {
 
     public void setUpdates(List<String> updates) {
         this.updates = updates;
+    }
+
+    public List<Employee> getEmployeesList() {
+        return employeesList;
+    }
+
+    public void setEmployeesList(List<Employee> employeesList) {
+        this.employeesList = employeesList;
     }
 }
