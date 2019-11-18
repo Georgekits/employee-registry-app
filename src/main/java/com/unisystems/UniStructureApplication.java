@@ -102,6 +102,7 @@ public class UniStructureApplication implements CommandLineRunner {
 		//Tasks
 		Task newPortal = new Task("New Portal","This is a task for making a new portal",5,9,8, TaskStatusEnum.NEW);
 		newPortal.getUpdates().add("new");
+		newPortal.getEmployeesList().add(george);
 		taskRepository.save(newPortal);
 		Task newTroll = new Task("New trol","This is a task for making a new portal",3,4,4, TaskStatusEnum.NEW);
 		newTroll.getUpdates().add("trololo");

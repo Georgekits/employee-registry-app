@@ -12,11 +12,11 @@ public class TaskByIdResponse {
     private String taskDesc;
     private TaskDifficultyEnum difficulty;
     private TaskStatusEnum taskStatus;
-    private List<Employee> assignedEmployees;
+    private List<String> assignedEmployees;
     private List<String> updates;
 
     public TaskByIdResponse(long taskId, String taskTitle, String taskDesc,
-                TaskDifficultyEnum difficulty, TaskStatusEnum taskStatus, List<Employee> assignedEmployees, List<String> updates) {
+                TaskDifficultyEnum difficulty, TaskStatusEnum taskStatus, List<String> assignedEmployees, List<String> updates) {
         this.taskId = taskId;
         this.taskTitle = taskTitle;
         this.taskDesc = taskDesc;
@@ -66,11 +66,11 @@ public class TaskByIdResponse {
         this.taskStatus = taskStatus;
     }
 
-    public List<Employee> getAssignedEmployees() {
+    public List<String> getAssignedEmployees() {
         return assignedEmployees;
     }
 
-    public void setAssignedEmployees(List<Employee> assignedEmployees) {
+    public void setAssignedEmployees(List<String> assignedEmployees) {
         this.assignedEmployees = assignedEmployees;
     }
 

@@ -40,9 +40,43 @@ public class TaskController {
                 HttpStatus.OK);
     }
 
-    @PostMapping("postTask")
-    public String kostas(@RequestHeader String taskId){
-        System.out.println("taskId: "+taskId);
-        return taskId;
+    //List with tasks that have this difficulty!!
+    @GetMapping("findByDifficulty/{difficulty}")
+    public ResponseEntity findByDifficulty(@PathVariable String difficulty){
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.findByDifficulty(difficulty.toUpperCase());
+        if(finalResponse.getErrors() != null)
+            return new ResponseEntity(finalResponse.getErrors(),
+                    null,
+                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(finalResponse.getData(),
+                null,
+                HttpStatus.OK);
+    }
+
+    //List with tasks that have been used by a specific workforce(assignedEmployees)
+    @GetMapping("findByAssignedEmployees/{assignedEmployees}")
+    public ResponseEntity findByAssignedEmployees(@PathVariable String assignedEmployees){
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.findByAssignedEmployees(assignedEmployees);
+        if(finalResponse.getErrors() != null)
+            return new ResponseEntity(finalResponse.getErrors(),
+                    null,
+                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(finalResponse.getData(),
+                null,
+                HttpStatus.OK);
+    }
+
+    //List with tasks that have been used by a specific workforce(assignedEmployees) AND difficulty
+    @GetMapping("findByAssignedEmployeesAndDifficulty/{difficulty}/{assignedEmployees}")
+    public ResponseEntity findByAssignedEmployeesAndDifficulty(@PathVariable String assignedEmployees,
+                                                               @PathVariable String difficulty){
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.findByAssignedEmployeesAndDifficulty(assignedEmployees, difficulty.toUpperCase());
+        if(finalResponse.getErrors() != null)
+            return new ResponseEntity(finalResponse.getErrors(),
+                    null,
+                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(finalResponse.getData(),
+                null,
+                HttpStatus.OK);
     }
 }

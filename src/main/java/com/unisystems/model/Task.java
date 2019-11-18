@@ -27,7 +27,7 @@ public class Task {
     private List<String> updates = new ArrayList<String>();
     @ManyToMany
     @JoinColumn(name = "EMPLOYEE_LIST", referencedColumnName = "employeeId")
-    private List<Employee> employeesList;
+    private List<Employee> employeesList = new ArrayList<Employee>();
 
     public Task() {}
 
@@ -108,6 +108,17 @@ public class Task {
         return employeesList;
     }
 
+    public List<String> getEmployeeInfo(Task task){
+        List<String> employees = new ArrayList<String>();
+        if(task.getEmployeesList() != null && task.getEmployeesList().size() != 0){
+            for(Employee emp: task.getEmployeesList()){
+                String empInfo = emp.getRegistrationNumber()+": "+emp.getFirstName()+" "+emp.getLastName()+", " +
+                        "working at "+emp.getEmployeeUnitRef().getUnitName()+" unit.";
+                employees.add(empInfo);
+            }
+        }
+        return employees;
+    }
     public void setEmployeesList(List<Employee> employeesList) {
         this.employeesList = employeesList;
     }

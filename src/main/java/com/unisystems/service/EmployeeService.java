@@ -7,8 +7,6 @@ import com.unisystems.response.EmployeeResponse;
 import com.unisystems.response.generic.Error;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllEmployeeResponse;
-import com.unisystems.response.strategy.SearchEmployeeStrategy;
-import com.unisystems.response.strategy.SearchEmployeeStrategyFactory;
 import com.unisystems.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
