@@ -83,8 +83,8 @@ public class TaskController {
     }
 
     @PostMapping("postTask")
-    public ResponseEntity setTask(@RequestParam String title, @RequestParam String desc, @RequestParam String estimationA,
-                                  @RequestParam String estimationB, @RequestParam String estimationC, @RequestParam String status){
+    public ResponseEntity setTask(@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
+                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status){
         GenericResponse<GetAllTaskResponse> finalResponse = taskService.addTask(title,desc,estimationA,estimationB,estimationC,status);
         if(finalResponse.getErrors() != null)
             return new ResponseEntity(finalResponse.getErrors(),
