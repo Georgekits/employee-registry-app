@@ -1,12 +1,15 @@
 package com.unisystems.mapper;
 
 import com.unisystems.enums.TaskDifficultyEnum;
+import com.unisystems.enums.TaskStatusEnum;
+import com.unisystems.model.Employee;
 import com.unisystems.model.Task;
 import com.unisystems.repository.TaskRepository;
 import com.unisystems.response.TaskByIdResponse;
 import com.unisystems.response.TaskResponse;
 import com.unisystems.response.generic.Error;
 import com.unisystems.response.generic.GenericResponse;
+import com.unisystems.response.getAllResponse.GetAllTaskResponse;
 import com.unisystems.response.getAllResponse.GetTaskByIdResponse;
 import com.unisystems.strategy.taskStrategy.SearchDifficultyStrategy;
 import com.unisystems.strategy.taskStrategy.SearchDifficultyStrategyFactory;
@@ -214,4 +217,49 @@ public class TaskMapper {
         }
         return genericResponse;
     }
+
+    public GenericResponse<GetAllTaskResponse> isValidTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
+        GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
+        List<Error> errors = new ArrayList<>();
+        if (utils.isNumeric(title)){
+            Error error = new Error(1,
+                    "The title is numeric",
+                    "Title can not be numeric");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+
+        }
+
+        if (!utils.isNumeric(estimationA) || !utils.isNumeric(estimationB )|| !utils.isNumeric(estimationC)){
+            Error error = new Error(2,
+                    "Some of the estimation is not Numeric",
+                    "Estimation must be always a number");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+        }
+        if (!(status.equalsIgnoreCase("NEW") || status.equalsIgnoreCase("STARTED") || status.equalsIgnoreCase("DONE"))){
+            Error error = new Error(3,
+                    "Status does not exist",
+                    "TRY NEW,STARTED,DONE");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+        }
+
+
+        if (errors.isEmpty()){
+            Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
+            taskRepository.save(task);
+            Iterable<Task> retrievedTasks = taskRepository.findAll();
+            List<TaskResponse> tasksList = new ArrayList<TaskResponse>();
+
+            for (Task tas : retrievedTasks){
+                tasksList.add(mapTaskResponseFromTask(tas));
+            }
+            genericResponse.setData( new GetAllTaskResponse(tasksList) );
+        };
+        return genericResponse;
+        };
+
+
+
 }

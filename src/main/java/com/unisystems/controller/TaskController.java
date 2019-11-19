@@ -1,9 +1,11 @@
 package com.unisystems.controller;
 
+import com.unisystems.model.Task;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllTaskResponse;
 import com.unisystems.response.getAllResponse.GetTaskByIdResponse;
 import com.unisystems.service.TaskService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,5 +80,20 @@ public class TaskController {
         return new ResponseEntity(finalResponse.getData(),
                 null,
                 HttpStatus.OK);
+    }
+
+    @PostMapping("postTask")
+    public ResponseEntity setTask(@RequestParam String title, @RequestParam String desc, @RequestParam String estimationA,
+                                  @RequestParam String estimationB, @RequestParam String estimationC, @RequestParam String status){
+        GenericResponse<GetAllTaskResponse> finalResponse = taskService.addTask(title,desc,estimationA,estimationB,estimationC,status);
+        if(finalResponse.getErrors() != null)
+            return new ResponseEntity(finalResponse.getErrors(),
+                    null,
+                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(finalResponse.getData(),
+                null,
+                HttpStatus.OK
+                );
+
     }
 }

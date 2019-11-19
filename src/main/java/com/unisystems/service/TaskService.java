@@ -61,4 +61,12 @@ public class TaskService {
         }
         return taskMapper.findByAssignedEmployeesAndDifficulty(assignedEmployees, difficulty, tasks);
     }
+
+    public GenericResponse<GetAllTaskResponse> addTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
+        return taskMapper.isValidTask(title,desc,estimationA,estimationB,estimationC,status);
+    }
+
+
+
+
 }
