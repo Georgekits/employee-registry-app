@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Component
 public class TaskMapper {
@@ -218,8 +220,8 @@ public class TaskMapper {
         return genericResponse;
     }
 
-    public GenericResponse<GetAllTaskResponse> isValidTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
-        GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
+    public GenericResponse<GetTaskByIdResponse> isPostTaskValid(String title, String desc, String estimationA, String estimationB, String estimationC, String status,String updates) {
+        GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
         if (utils.isNumeric(title)){
             Error error = new Error(1,
@@ -245,18 +247,35 @@ public class TaskMapper {
             genericResponse.setErrors(errors);
         }
 
+        String regex = "^[a-zA-Z0-9,]*$";
+
+        boolean matches = Pattern.matches(regex, updates);
+
+        if (!matches){
+            Error error = new Error(4,
+                    "Wrong input in updates",
+                    "Try to delimit your list only with comma");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+
+        }
+
 
         if (errors.isEmpty()){
+            List<String> updatesList = Arrays.asList(updates.split(","));
             Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
+            task.getUpdates().addAll(updatesList);
             taskRepository.save(task);
             Iterable<Task> retrievedTasks = taskRepository.findAll();
-            List<TaskResponse> tasksList = new ArrayList<TaskResponse>();
+            List<TaskByIdResponse> tasksList = new ArrayList<TaskByIdResponse>();
 
             for (Task tas : retrievedTasks){
-                tasksList.add(mapTaskResponseFromTask(tas));
+                tasksList.add(mapTaskByIdResponseFromTask(tas));
             }
-            genericResponse.setData( new GetAllTaskResponse(tasksList) );
+            genericResponse.setData( new GetTaskByIdResponse(tasksList) );
         };
+
+
         return genericResponse;
         };
 
