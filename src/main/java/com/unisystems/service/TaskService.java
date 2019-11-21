@@ -1,5 +1,6 @@
 package com.unisystems.service;
 
+import com.unisystems.enums.TaskStatusEnum;
 import com.unisystems.mapper.TaskMapper;
 import com.unisystems.model.Task;
 import com.unisystems.repository.TaskRepository;
@@ -63,10 +64,24 @@ public class TaskService {
     }
 
     public GenericResponse<GetAllTaskResponse> addTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
-        return taskMapper.isValidTask(title,desc,estimationA,estimationB,estimationC,status);
+        GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
+        GenericResponse<GetAllTaskResponse> validation =  taskMapper.validateTask(title,desc,estimationA,estimationB,estimationC,status);
+        if (validation.getErrors() == null){
+            Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
+            taskRepository.save(task);
+            List<TaskResponse> newTask = new ArrayList<TaskResponse>();
+            newTask.add(taskMapper.mapTaskResponseFromTask(task));
+            genericResponse.setData(new GetAllTaskResponse(newTask));
+        } else {
+            genericResponse.setErrors(validation.getErrors());
+        }
+        return genericResponse;
     }
 
 
+    public GenericResponse<GetAllTaskResponse> updateTask(String taskId, String title, String desc,
+                                                    String estimationA, String estimationB, String estimationC, String status) {
+        return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status);
 
-
+    }
 }

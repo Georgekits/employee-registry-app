@@ -1,6 +1,7 @@
 package com.unisystems.controller;
 
 import com.unisystems.model.Task;
+import com.unisystems.response.TaskResponse;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllTaskResponse;
 import com.unisystems.response.getAllResponse.GetTaskByIdResponse;
@@ -94,6 +95,20 @@ public class TaskController {
                 null,
                 HttpStatus.OK
                 );
+    }
 
+    @PutMapping("putTask/{taskId}")
+    public ResponseEntity putTask(@PathVariable String taskId,@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
+                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status){
+        GenericResponse<GetAllTaskResponse> finalResponse = taskService.updateTask(taskId, title, desc, estimationA, estimationB,
+                estimationC, status);
+
+        if(finalResponse.getErrors() != null)
+            return new ResponseEntity(finalResponse.getErrors(),
+                    null,
+                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(finalResponse.getData(),
+                null,
+                HttpStatus.OK);
     }
 }

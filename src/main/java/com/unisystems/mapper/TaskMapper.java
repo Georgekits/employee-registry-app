@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Component
 public class TaskMapper {
@@ -218,17 +220,9 @@ public class TaskMapper {
         return genericResponse;
     }
 
-    public GenericResponse<GetAllTaskResponse> isValidTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
+    public GenericResponse<GetAllTaskResponse> validateTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status) {
         GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
-        if (utils.isNumeric(title)){
-            Error error = new Error(1,
-                    "The title is numeric",
-                    "Title can not be numeric");
-            errors.add(error);
-            genericResponse.setErrors(errors);
-
-        }
 
         if (!utils.isNumeric(estimationA) || !utils.isNumeric(estimationB )|| !utils.isNumeric(estimationC)){
             Error error = new Error(2,
@@ -237,29 +231,62 @@ public class TaskMapper {
             errors.add(error);
             genericResponse.setErrors(errors);
         }
-        if (!(status.equalsIgnoreCase("NEW") || status.equalsIgnoreCase("STARTED") || status.equalsIgnoreCase("DONE"))){
+        if (!(status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.NEW)) || status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.STARTED)) || status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.DONE)))){
             Error error = new Error(3,
                     "Status does not exist",
-                    "TRY NEW,STARTED,DONE");
+                    "Try NEW,STARTED,DONE");
             errors.add(error);
             genericResponse.setErrors(errors);
         }
-
-
-        if (errors.isEmpty()){
-            Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
-            taskRepository.save(task);
-            Iterable<Task> retrievedTasks = taskRepository.findAll();
-            List<TaskResponse> tasksList = new ArrayList<TaskResponse>();
-
-            for (Task tas : retrievedTasks){
-                tasksList.add(mapTaskResponseFromTask(tas));
-            }
-            genericResponse.setData( new GetAllTaskResponse(tasksList) );
-        };
         return genericResponse;
-        };
+    }
 
-
-
+    public GenericResponse<GetAllTaskResponse> updateTask(String taskId, String title, String desc, String estimationA,
+                                                    String estimationB, String estimationC, String status) {
+        GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
+        List<Error> errors = new ArrayList<>();
+        if(!utils.isNumeric(taskId)){
+            Error error = new Error(2,
+                    "Incorrect taskId",
+                    "The given taskId should always be numeric");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+            return genericResponse;
+        }
+        //taskId is OK
+        Task taskToBeUpdated = new Task();
+        try {
+            taskToBeUpdated = taskRepository.findById(Long.parseLong(taskId)).get();
+        } catch(NoSuchElementException e){
+            taskToBeUpdated =null;
+        }
+        if(taskToBeUpdated == null){
+            Error error = new Error(3,
+                    "Task N/A",
+                    "The requested taskId does not map with any of the available tasks");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+            return genericResponse;
+        }
+        //taskId is OK and exists, then check input
+        GenericResponse<GetAllTaskResponse> taskValidation = validateTask(title,desc,estimationA,estimationB,estimationC,status);
+        System.out.println("taskValidation: "+taskValidation);
+        if(taskValidation.getErrors() == null){
+            taskToBeUpdated.setDesc(desc);
+            taskToBeUpdated.setEstimationA(Integer.parseInt(estimationA));
+            taskToBeUpdated.setEstimationB(Integer.parseInt(estimationB));
+            taskToBeUpdated.setEstimationC(Integer.parseInt(estimationC));
+            taskToBeUpdated.setTitle(title);
+            taskToBeUpdated.setStatus(
+                    TaskStatusEnum.valueOf(status.toUpperCase())
+            );
+            taskRepository.save(taskToBeUpdated);
+            List<TaskResponse> newTask = new ArrayList<TaskResponse>();
+            newTask.add(mapTaskResponseFromTask(taskToBeUpdated));
+            genericResponse.setData(new GetAllTaskResponse(newTask));
+        } else {
+            genericResponse.setErrors(taskValidation.getErrors());
+        }
+        return genericResponse;
+    }
 }
