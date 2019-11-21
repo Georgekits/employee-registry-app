@@ -67,6 +67,8 @@ public class TaskService {
     }
 
 
-
-
+    public GenericResponse<GetTaskByIdResponse> patchTask(String id, String columnName, String data) {
+        List<Task> retrievedTasks = (List<Task>) taskRepository.findAll();
+        return taskMapper.taskExists(id,columnName,data,retrievedTasks);
+    }
 }

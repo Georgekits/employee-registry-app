@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/task/")
 public class TaskController {
@@ -94,6 +96,20 @@ public class TaskController {
                 null,
                 HttpStatus.OK
                 );
+
+    }
+
+    @PatchMapping("patchTask/{id}")
+    public ResponseEntity patchTask(@PathVariable String id, @RequestHeader String columnName, @RequestHeader String data){
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.patchTask(id, columnName, data);
+        if(finalResponse.getErrors() != null)
+            return new ResponseEntity(finalResponse.getErrors(),
+                    null,
+                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(finalResponse.getData(),
+                null,
+                HttpStatus.OK
+        );
 
     }
 }
