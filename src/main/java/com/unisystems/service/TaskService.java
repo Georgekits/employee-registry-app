@@ -64,6 +64,15 @@ public class TaskService {
     }
 
     public GenericResponse<GetAllTaskResponse> addTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
+        return taskMapper.isValidTask(title,desc,estimationA,estimationB,estimationC,status);
+    }
+
+    public GenericResponse<GetTaskByIdResponse> patchTask(String id, String columnName, String data) {
+        List<Task> retrievedTasks = (List<Task>) taskRepository.findAll();
+        return taskMapper.taskExists(id,columnName,data,retrievedTasks);
+    }
+
+    public GenericResponse<GetAllTaskResponse> addTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
         GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
         GenericResponse<GetAllTaskResponse> validation =  taskMapper.validateTask(title,desc,estimationA,estimationB,estimationC,status);
         if (validation.getErrors() == null){
@@ -80,8 +89,10 @@ public class TaskService {
 
 
     public GenericResponse<GetAllTaskResponse> updateTask(String taskId, String title, String desc,
-                                                    String estimationA, String estimationB, String estimationC, String status) {
+                                                          String estimationA, String estimationB, String estimationC, String status) {
         return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status);
 
     }
+
+
 }

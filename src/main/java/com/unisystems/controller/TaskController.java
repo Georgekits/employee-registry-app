@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/task/")
 public class TaskController {
@@ -85,8 +87,8 @@ public class TaskController {
 
     @PostMapping("postTask")
     public ResponseEntity setTask(@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
-                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status){
-        GenericResponse<GetAllTaskResponse> finalResponse = taskService.addTask(title,desc,estimationA,estimationB,estimationC,status);
+                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status, @RequestHeader String updates){
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.addTask(title,desc,estimationA,estimationB,estimationC,status,updates);
         if(finalResponse.getErrors() != null)
             return new ResponseEntity(finalResponse.getErrors(),
                     null,
@@ -110,5 +112,19 @@ public class TaskController {
         return new ResponseEntity(finalResponse.getData(),
                 null,
                 HttpStatus.OK);
+    }
+
+    @PatchMapping("patchTask/{id}")
+    public ResponseEntity patchTask(@PathVariable String id, @RequestHeader String columnName, @RequestHeader String data){
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.patchTask(id, columnName, data);
+        if(finalResponse.getErrors() != null)
+            return new ResponseEntity(finalResponse.getErrors(),
+                    null,
+                    HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(finalResponse.getData(),
+                null,
+                HttpStatus.OK
+        );
+
     }
 }
