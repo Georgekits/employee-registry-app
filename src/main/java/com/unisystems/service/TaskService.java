@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -63,24 +64,23 @@ public class TaskService {
         return taskMapper.findByAssignedEmployeesAndDifficulty(assignedEmployees, difficulty, tasks);
     }
 
-    public GenericResponse<GetAllTaskResponse> addTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
-        return taskMapper.isValidTask(title,desc,estimationA,estimationB,estimationC,status);
-    }
-
     public GenericResponse<GetTaskByIdResponse> patchTask(String id, String columnName, String data) {
         List<Task> retrievedTasks = (List<Task>) taskRepository.findAll();
         return taskMapper.taskExists(id,columnName,data,retrievedTasks);
     }
 
-    public GenericResponse<GetAllTaskResponse> addTask(String title,String desc, String estimationA, String estimationB, String estimationC,String status) {
-        GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
-        GenericResponse<GetAllTaskResponse> validation =  taskMapper.validateTask(title,desc,estimationA,estimationB,estimationC,status);
+    public GenericResponse<GetTaskByIdResponse> addTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates) {
+        GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
+        GenericResponse<GetTaskByIdResponse> validation =  taskMapper.validateTask(title,desc,estimationA,estimationB,estimationC,status, updates);
         if (validation.getErrors() == null){
-            Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
+            List<String> updatesList = Arrays.asList(updates.split(","));
+            Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),
+                    Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
+            task.getUpdates().addAll(updatesList);
             taskRepository.save(task);
-            List<TaskResponse> newTask = new ArrayList<TaskResponse>();
-            newTask.add(taskMapper.mapTaskResponseFromTask(task));
-            genericResponse.setData(new GetAllTaskResponse(newTask));
+            List<TaskByIdResponse> newTask = new ArrayList<>();
+            newTask.add(taskMapper.mapTaskByIdResponseFromTask(task));
+            genericResponse.setData(new GetTaskByIdResponse(newTask));
         } else {
             genericResponse.setErrors(validation.getErrors());
         }
@@ -88,11 +88,9 @@ public class TaskService {
     }
 
 
-    public GenericResponse<GetAllTaskResponse> updateTask(String taskId, String title, String desc,
-                                                          String estimationA, String estimationB, String estimationC, String status) {
-        return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status);
+    public GenericResponse<GetTaskByIdResponse> updateTask(String taskId, String title, String desc,
+                                  String estimationA, String estimationB, String estimationC, String status, String updates) {
+        return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status,updates);
 
     }
-
-
 }

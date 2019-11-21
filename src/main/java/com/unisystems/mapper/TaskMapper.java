@@ -2,7 +2,6 @@ package com.unisystems.mapper;
 
 import com.unisystems.enums.TaskDifficultyEnum;
 import com.unisystems.enums.TaskStatusEnum;
-import com.unisystems.model.Employee;
 import com.unisystems.model.Task;
 import com.unisystems.repository.TaskRepository;
 import com.unisystems.response.TaskByIdResponse;
@@ -21,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Component
@@ -225,43 +222,9 @@ public class TaskMapper {
         return genericResponse;
     }
 
-    public GenericResponse<GetAllTaskResponse> validateTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status) {
-        GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
-        List<Error> errors = new ArrayList<>();
-
-        if (!utils.isNumeric(estimationA) || !utils.isNumeric(estimationB) || !utils.isNumeric(estimationC)) {
-            Error error = new Error(2,
-                    "Some of the estimation is not Numeric",
-                    "Estimation must be always a number");
-            errors.add(error);
-            genericResponse.setErrors(errors);
-        }
-        if (!(status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.NEW)) || status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.STARTED)) || status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.DONE)))){
-            Error error = new Error(3,
-                    "Status does not exist",
-                    "Try NEW,STARTED,DONE");
-            errors.add(error);
-            genericResponse.setErrors(errors);
-        }
-
-
-        if (errors.isEmpty()){
-            Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
-            taskRepository.save(task);
-            Iterable<Task> retrievedTasks = taskRepository.findAll();
-            List<TaskResponse> tasksList = new ArrayList<TaskResponse>();
-
-            for (Task tas : retrievedTasks){
-                tasksList.add(mapTaskResponseFromTask(tas));
-            }
-            genericResponse.setData( new GetAllTaskResponse(tasksList) );
-        };
-        return genericResponse;
-    }
-
-    public GenericResponse<GetAllTaskResponse> updateTask(String taskId, String title, String desc, String estimationA,
-                                                          String estimationB, String estimationC, String status) {
-        GenericResponse<GetAllTaskResponse> genericResponse = new GenericResponse<>();
+    public GenericResponse<GetTaskByIdResponse> updateTask(String taskId, String title, String desc, String estimationA,
+                                                          String estimationB, String estimationC, String status, String updates) {
+        GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
         if(!utils.isNumeric(taskId)){
             Error error = new Error(2,
@@ -287,7 +250,7 @@ public class TaskMapper {
             return genericResponse;
         }
         //taskId is OK and exists, then check input
-        GenericResponse<GetAllTaskResponse> taskValidation = validateTask(title,desc,estimationA,estimationB,estimationC,status);
+        GenericResponse<GetTaskByIdResponse> taskValidation = validateTask(title,desc,estimationA,estimationB,estimationC,status, updates);
         System.out.println("taskValidation: "+taskValidation);
         if(taskValidation.getErrors() == null){
             taskToBeUpdated.setDesc(desc);
@@ -298,16 +261,17 @@ public class TaskMapper {
             taskToBeUpdated.setStatus(
                     TaskStatusEnum.valueOf(status.toUpperCase())
             );
+            List<String> updatesList = Arrays.asList(updates.split(","));
+            taskToBeUpdated.getUpdates().addAll(updatesList);
             taskRepository.save(taskToBeUpdated);
-            List<TaskResponse> newTask = new ArrayList<TaskResponse>();
-            newTask.add(mapTaskResponseFromTask(taskToBeUpdated));
-            genericResponse.setData(new GetAllTaskResponse(newTask));
+            List<TaskByIdResponse> newTask = new ArrayList<>();
+            newTask.add(mapTaskByIdResponseFromTask(taskToBeUpdated));
+            genericResponse.setData(new GetTaskByIdResponse(newTask));
         } else {
             genericResponse.setErrors(taskValidation.getErrors());
         }
         return genericResponse;
     }
-
     public GenericResponse<GetTaskByIdResponse> taskExists(String id, String columnName, String data, List<Task> tasks) {
         List<Error> errors = new ArrayList<Error>();
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
@@ -318,113 +282,137 @@ public class TaskMapper {
             genericResponse.setErrors(errors);
             return genericResponse;
         }
-        boolean taskExists = taskRepository.findById(Long.parseLong(id)).isPresent();
+        //taskId is OK
+        Task tasktoBePatched = new Task();
+        try {
+            tasktoBePatched = taskRepository.findById(Long.parseLong(id)).get();
+        } catch(NoSuchElementException e){
+            tasktoBePatched =null;
+        }
 
-        if (!taskExists) {
+        if (tasktoBePatched == null) {
             Error error = new Error(1023, "Task with id " + id + " does not exist", "Please give an existing id");
             errors.add(error);
             genericResponse.setErrors(errors);
             return genericResponse;
-
         }
-        else {
-            if(!(columnName.equals("title")|| columnName.equals("desc") || columnName.equals("estimationA") ||
-                    columnName.equals("estimationB")|| columnName.equals("estimationC") || columnName.equals("estimationA") ||
-                    columnName.equals("status") || columnName.equals("updates"))) {
+        //task exists and is OK
+        if(!(columnName.equals("title")|| columnName.equals("desc") || columnName.equals("estimationA") ||
+                columnName.equals("estimationB")|| columnName.equals("estimationC") || columnName.equals("estimationA") ||
+                columnName.equals("status") || columnName.equals("updates"))) {
 
-                Error error = new Error(166,
-                        "This attribute doesn't exist in task",
-                        "Please give a valid attribute");
-                errors.add(error);
-                genericResponse.setErrors(errors);
-                return genericResponse;
-            }
-
-            Task task = taskRepository.findById(Long.parseLong(id)).get();
-
-            switch (columnName) {
-                case "title":
-                    task.setTitle(data);
-                    taskRepository.save(task);
-                    break;
-                case "desc":
-                    task.setDesc(data);
-                    taskRepository.save(task);
-                    break;
-                case "estimationA":
-
-                    if (!utils.isNumeric(data)) {
-                        Error error = new Error(2,
-                                "The estimationA is not Numeric",
-                                "Estimation must be always a number");
-                        errors.add(error);
-                        genericResponse.setErrors(errors);
-
-                        return genericResponse;
-                    }
-                    task.setEstimationA(Integer.parseInt(data));
-                    taskRepository.save(task);
-                    break;
-                case "estimationB":
-
-                    if (!utils.isNumeric(data)) {
-                        Error error = new Error(2,
-                                "The estimationB is not Numeric",
-                                "Estimation must be always a number");
-                        errors.add(error);
-                        genericResponse.setErrors(errors);
-
-                        return genericResponse;
-                    }
-                    task.setEstimationB(Integer.parseInt(data));
-                    taskRepository.save(task);
-                    break;
-                case "estimationC":
-
-                    if (!utils.isNumeric(data)) {
-                        Error error = new Error(2,
-                                "The estimationC is not Numeric",
-                                "Estimation must be always a number");
-                        errors.add(error);
-                        genericResponse.setErrors(errors);
-
-                        return genericResponse;
-                    }
-                    task.setEstimationC(Integer.parseInt(data));
-                    taskRepository.save(task);
-                    break;
-                case "status":
-                    task.setStatus(TaskStatusEnum.valueOf(data.toUpperCase()));
-                    taskRepository.save(task);
-                    break;
-                case "updates":
-                    boolean matches = Pattern.matches(regex, data);
-
-                    if (!matches) {
-                        Error error = new Error(4,
-                                "Wrong input in updates",
-                                "Try to delimit your list only with comma");
-                        errors.add(error);
-                        genericResponse.setErrors(errors);
-                        return genericResponse;
-                    }
-                    List<String> updatesList = Arrays.asList(data.split(","));
-                    task.getUpdates().addAll(updatesList);
-                    taskRepository.save(task);
-                    break;
-
-            }
-
+            Error error = new Error(166,
+                    "This attribute is not a task property",
+                    "Please give a valid attribute");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+            return genericResponse;
         }
+        //columnName is OK
 
+        switch (columnName) {
+            case "title":
+                tasktoBePatched.setTitle(data);
+                taskRepository.save(tasktoBePatched);
+                break;
+            case "desc":
+                tasktoBePatched.setDesc(data);
+                taskRepository.save(tasktoBePatched);
+                break;
+            case "estimationA":
+                if (!utils.isNumeric(data)) {
+                    Error error = new Error(2,
+                            "The estimationA is not Numeric",
+                            "Estimation must be always a number");
+                    errors.add(error);
+                    genericResponse.setErrors(errors);
+
+                    return genericResponse;
+                }
+                tasktoBePatched.setEstimationA(Integer.parseInt(data));
+                taskRepository.save(tasktoBePatched);
+                break;
+            case "estimationB":
+
+                if (!utils.isNumeric(data)) {
+                    Error error = new Error(2,
+                            "The estimationB is not Numeric",
+                            "Estimation must be always a number");
+                    errors.add(error);
+                    genericResponse.setErrors(errors);
+
+                    return genericResponse;
+                }
+                tasktoBePatched.setEstimationB(Integer.parseInt(data));
+                taskRepository.save(tasktoBePatched);
+                break;
+            case "estimationC":
+
+                if (!utils.isNumeric(data)) {
+                    Error error = new Error(2,
+                            "The estimationC is not Numeric",
+                            "Estimation must be always a number");
+                    errors.add(error);
+                    genericResponse.setErrors(errors);
+
+                    return genericResponse;
+                }
+                tasktoBePatched.setEstimationC(Integer.parseInt(data));
+                taskRepository.save(tasktoBePatched);
+                break;
+            case "status":
+                tasktoBePatched.setStatus(TaskStatusEnum.valueOf(data.toUpperCase()));
+                taskRepository.save(tasktoBePatched);
+                break;
+            case "updates":
+                boolean matches = Pattern.matches(regex, data);
+
+                if (!matches) {
+                    Error error = new Error(4,
+                            "Wrong input in updates",
+                            "Try to delimit your list only with comma");
+                    errors.add(error);
+                    genericResponse.setErrors(errors);
+                    return genericResponse;
+                }
+                List<String> updatesList = Arrays.asList(data.split(","));
+                tasktoBePatched.getUpdates().addAll(updatesList);
+                taskRepository.save(tasktoBePatched);
+                break;
+        }
         List<TaskByIdResponse> taskResponse = new ArrayList<TaskByIdResponse>();
-
         taskResponse.addAll(mapAllTasksById(tasks, id));
-
         genericResponse.setData(new GetTaskByIdResponse(taskResponse));
+        return genericResponse;
+    }
 
+    public GenericResponse<GetTaskByIdResponse> validateTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates) {
+        GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
+        List<Error> errors = new ArrayList<>();
 
+        if (!utils.isNumeric(estimationA) || !utils.isNumeric(estimationB) || !utils.isNumeric(estimationC)) {
+            Error error = new Error(2,
+                    "Some of the estimation is not Numeric",
+                    "Estimation must be always a number");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+        }
+        if (!(status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.NEW)) || status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.STARTED)) || status.equalsIgnoreCase(String.valueOf(TaskStatusEnum.DONE)))){
+            Error error = new Error(3,
+                    "Status does not exist",
+                    "TRY NEW,STARTED,DONE");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+        }
 
+        boolean matches = Pattern.matches(regex, updates);
+        if (!matches) {
+            Error error = new Error(4,
+                    "Wrong input in updates",
+                    "Try to delimit your list only with comma");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+        }
         return genericResponse;
     }
 }

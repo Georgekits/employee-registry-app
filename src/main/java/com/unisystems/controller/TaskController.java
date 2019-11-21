@@ -84,7 +84,6 @@ public class TaskController {
                 null,
                 HttpStatus.OK);
     }
-
     @PostMapping("postTask")
     public ResponseEntity setTask(@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
                                   @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status, @RequestHeader String updates){
@@ -101,9 +100,10 @@ public class TaskController {
 
     @PutMapping("putTask/{taskId}")
     public ResponseEntity putTask(@PathVariable String taskId,@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
-                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status){
-        GenericResponse<GetAllTaskResponse> finalResponse = taskService.updateTask(taskId, title, desc, estimationA, estimationB,
-                estimationC, status);
+                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status,
+                                  @RequestHeader String updates){
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.updateTask(taskId, title, desc, estimationA, estimationB,
+                estimationC, status, updates);
 
         if(finalResponse.getErrors() != null)
             return new ResponseEntity(finalResponse.getErrors(),
