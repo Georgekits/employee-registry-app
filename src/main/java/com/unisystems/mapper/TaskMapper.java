@@ -415,4 +415,41 @@ public class TaskMapper {
         }
         return genericResponse;
     }
+
+    public GenericResponse<String> deleteTasks(List<Task> retrievedTasks) {
+        GenericResponse<String> response = new GenericResponse<>();
+        List<Error> errors = new ArrayList<>();
+        if(retrievedTasks.size() == 0) {
+            Error error = new Error(345,"No tasks.","No tasks have been found");
+            errors.add(error);
+            response.setErrors(errors);
+        } else {
+            taskRepository.deleteAll();
+        }
+        return response;
+    }
+
+    public GenericResponse<String> deleteById(String taskId) {
+        GenericResponse<String> genericResponse = new GenericResponse<>();
+        List<Error> errors = new ArrayList<>();
+        if(!utils.isNumeric(taskId)){
+            Error error = new Error(234, "Wrong taskId",
+                    "The provided taskId parameter should be numeric");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+            return genericResponse;
+        }
+        //taskId is OK
+        long formattedTaskId = Long.parseLong(taskId);
+        boolean taskExists = taskRepository.findById(formattedTaskId).isPresent();
+        if(!taskExists){
+            Error error = new Error(234, "Task N/A",
+                    "The provided taskId does not match with any task");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+        } else {
+            taskRepository.deleteById(formattedTaskId);
+        }
+        return genericResponse;
+    }
 }

@@ -6,9 +6,11 @@ import com.unisystems.model.Task;
 import com.unisystems.repository.TaskRepository;
 import com.unisystems.response.TaskByIdResponse;
 import com.unisystems.response.TaskResponse;
+import com.unisystems.response.generic.Error;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllTaskResponse;
 import com.unisystems.response.getAllResponse.GetTaskByIdResponse;
+import com.unisystems.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,9 @@ public class TaskService {
 
     @Autowired
     TaskMapper taskMapper;
+
+    @Autowired
+    Utils utils;
 
     public GenericResponse<GetAllTaskResponse> getAllTasks() {
         Iterable<Task> retrievedTasks = taskRepository.findAll();
@@ -87,10 +92,18 @@ public class TaskService {
         return genericResponse;
     }
 
-
     public GenericResponse<GetTaskByIdResponse> updateTask(String taskId, String title, String desc,
                                   String estimationA, String estimationB, String estimationC, String status, String updates) {
         return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status,updates);
 
+    }
+
+    public GenericResponse<String> deleteAllTasks() {
+        List<Task> retrievedTasks = (List<Task>) taskRepository.findAll();
+        return taskMapper.deleteTasks(retrievedTasks);
+    }
+
+    public GenericResponse<String> deleteTaskById(String taskId) {
+        return taskMapper.deleteById(taskId);
     }
 }
