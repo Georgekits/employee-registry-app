@@ -82,18 +82,25 @@ public class TaskService {
     public GenericResponse<GetTaskByIdResponse> addTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates,String employees) {
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
         GenericResponse<GetTaskByIdResponse> validation =  taskMapper.validateTask(title,desc,estimationA,estimationB,estimationC,status, updates,employees);
+        //If validation is OK, POST it
         if (validation.getErrors() == null){
-            List<String> updatesList = Arrays.asList(updates.split(","));
-            List<String> EmployeesIdList = Arrays.asList(employees.split(","));
-            List<Employee> AssignEmployeesList = new ArrayList<>();
 
-            for (String employeeId: EmployeesIdList) {
-                AssignEmployeesList.add(employeeRepository.findById(Long.parseLong(employeeId)).get());
-            }
             Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),
                     Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
-            task.getUpdates().addAll(updatesList);
-            task.getEmployeesList().addAll(AssignEmployeesList);
+            if(!updates.equals("null")){
+                List<String> updatesList = Arrays.asList(updates.split(","));
+                task.getUpdates().addAll(updatesList);
+            }
+            if(!employees.equals("null")){
+                List<String> employeesIdList = Arrays.asList(employees.split(","));
+                List<Employee> assignEmployeesList = new ArrayList<>();
+
+                for (String employeeId: employeesIdList) {
+                    assignEmployeesList.add(employeeRepository.findById(Long.parseLong(employeeId)).get());
+                }
+                task.getEmployeesList().addAll(assignEmployeesList);
+            }
+
             taskRepository.save(task);
             List<TaskByIdResponse> newTask = new ArrayList<>();
             newTask.add(taskMapper.mapTaskByIdResponseFromTask(task));
@@ -105,7 +112,7 @@ public class TaskService {
     }
 
     public GenericResponse<GetTaskByIdResponse> updateTask(String taskId, String title, String desc,
-                                  String estimationA, String estimationB, String estimationC, String status, String updates,String employees) {
+                                                           String estimationA, String estimationB, String estimationC, String status, String updates,String employees) {
         return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status,updates,employees);
     }
 

@@ -17,10 +17,7 @@ import com.unisystems.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Component
@@ -228,7 +225,7 @@ public class TaskMapper {
     }
 
     public GenericResponse<GetTaskByIdResponse> updateTask(String taskId, String title, String desc, String estimationA,
-                                                          String estimationB, String estimationC, String status, String updates,
+                                                           String estimationB, String estimationC, String status, String updates,
                                                            String employees) {
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
@@ -257,7 +254,7 @@ public class TaskMapper {
         }
         //taskId is OK and exists, then check input
         GenericResponse<GetTaskByIdResponse> taskValidation = validateTask(title,desc,estimationA,estimationB,estimationC,status, updates,employees);
-        System.out.println("taskValidation: "+taskValidation);
+
         if(taskValidation.getErrors() == null){
             taskToBeUpdated.setDesc(desc);
             taskToBeUpdated.setEstimationA(Integer.parseInt(estimationA));
@@ -267,8 +264,29 @@ public class TaskMapper {
             taskToBeUpdated.setStatus(
                     TaskStatusEnum.valueOf(status.toUpperCase())
             );
-            List<String> updatesList = Arrays.asList(updates.split(","));
-            taskToBeUpdated.getUpdates().addAll(updatesList);
+
+            if(!updates.equals("null")){
+                List<String> updatesList = Arrays.asList(updates.split(","));
+                taskToBeUpdated.getUpdates().addAll(updatesList);
+            }
+            if(!employees.equals("null")){
+                List<String> employeesIdList = Arrays.asList(employees.split(","));
+                List<Employee> assignEmployeesList = new ArrayList<>();
+
+                for (String employeeId: employeesIdList) {
+                    boolean employeeExists = false;
+                    if(taskToBeUpdated.getEmployeesList() != null){
+                        for(Employee emp: taskToBeUpdated.getEmployeesList()){
+                            if(emp.getEmployeeId() == Long.parseLong(employeeId)){
+                                employeeExists = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(!employeeExists) assignEmployeesList.add(employeeRepository.findById(Long.parseLong(employeeId)).get());
+                }
+                taskToBeUpdated.getEmployeesList().addAll(assignEmployeesList);
+            }
             taskRepository.save(taskToBeUpdated);
             List<TaskByIdResponse> newTask = new ArrayList<>();
             newTask.add(mapTaskByIdResponseFromTask(taskToBeUpdated));
@@ -395,10 +413,8 @@ public class TaskMapper {
     public GenericResponse<GetTaskByIdResponse> validateTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates, String employees) {
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
-        List<String> AssignEmployeesList = Arrays.asList(employees.split(","));
-        List<Employee> retrievedEmployees = (List<Employee>) employeeRepository.findAll();
-        String TaskUnitName = new String();
-        Employee masterEmployee = new Employee();
+        List<String> assignEmployeesList = Arrays.asList(employees.split(","));
+        String taskUnitName = new String();
 
 
         if (!utils.isNumeric(estimationA) || !utils.isNumeric(estimationB) || !utils.isNumeric(estimationC)) {
@@ -415,62 +431,74 @@ public class TaskMapper {
             errors.add(error);
             genericResponse.setErrors(errors);
         }
-
-        boolean matchesUpdates = Pattern.matches(regexUpdates, updates);
-        if (!matchesUpdates) {
-            Error error = new Error(4,
-                    "Wrong input in updates",
-                    "Try to delimit your list only with comma");
-            errors.add(error);
-            genericResponse.setErrors(errors);
-        }
-
-        boolean matchesEmployees = Pattern.matches(regexEmployees, employees);
-        if (!matchesEmployees) {
-            Error error = new Error(4,
-                    "Wrong input in Employees",
-                    "Assign an Employee with ID and try to delimit your list only with comma");
-            errors.add(error);
-            genericResponse.setErrors(errors);
-        }else {
-            boolean flag = true ;
-            for (String employeeId: AssignEmployeesList) {
-
-                boolean EmployeeExists = employeeRepository.findById(Long.parseLong(employeeId)).isPresent();
-                if (!EmployeeExists) {
-                    Error error = new Error(5,
-                            "Employee with id " + employeeId + " does not exist",
-                            "Assign an existing Employee");
-                    errors.add(error);
-                    genericResponse.setErrors(errors);
-                    return genericResponse;
-                }
-
-                String employeeUnit = new String();
-                Employee employee = new Employee();
-
-                if (flag) {
-                    masterEmployee = employeeRepository.findById(Long.parseLong(employeeId)).get();
-                    TaskUnitName = masterEmployee.getEmployeeUnitRef().getUnitName();
-                    flag = false;
-
-                } else {
-                    employee = employeeRepository.findById(Long.parseLong(employeeId)).get();
-                    employeeUnit = employee.getEmployeeUnitRef().getUnitName();
-
-                    if (!(employeeUnit.equalsIgnoreCase(TaskUnitName))) {
-                        Error error = new Error(6,
-                                "Employees are not in the same Unit",
-                                "Assign employees from the same Unit only");
-                        errors.add(error);
-                        genericResponse.setErrors(errors);
-                        return genericResponse;
-
-                    }
-                }
+        if(!updates.equals("null")) {
+            boolean matchesUpdates = Pattern.matches(regexUpdates, updates);
+            if (!matchesUpdates) {
+                Error error = new Error(4,
+                        "Wrong input in updates",
+                        "Try to delimit your list only with comma");
+                errors.add(error);
+                genericResponse.setErrors(errors);
             }
         }
 
+        if(!employees.equals("null")){
+            boolean matchesEmployees = Pattern.matches(regexEmployees, employees);
+            if (!matchesEmployees) {
+                Error error = new Error(4,
+                        "Wrong input in Employees",
+                        "Assign an Employee with ID and try to delimit your list only with comma");
+                errors.add(error);
+                genericResponse.setErrors(errors);
+            }else {
+                boolean flag = true;
+                HashMap<String, Integer> employeeMap = new HashMap<>();
+                String employeeUnit = new String();
+                for (String employeeId: assignEmployeesList) {
+                    boolean employeeExists = employeeRepository.findById(Long.parseLong(employeeId)).isPresent();
+                    if (!employeeExists) {
+                        Error error = new Error(5,
+                                "Employee with id " + employeeId + " does not exist",
+                                "Assign an existing Employee");
+                        errors.add(error);
+                        genericResponse.setErrors(errors);
+                        return genericResponse;
+                    }
+                    boolean idExists = String.valueOf(employeeMap.get(employeeId)) != null;
+                    if(idExists){
+                        employeeMap.put(employeeId,employeeMap.get(employeeId) == null ? 1 : employeeMap.get(employeeId) + 1);
+                    }
+                    if (flag) {
+                        taskUnitName = employeeRepository.findById(Long.parseLong(employeeId)).get().getEmployeeUnitRef().getUnitName();
+                        flag = false;
+
+                    } else {
+                        employeeUnit = employeeRepository.findById(Long.parseLong(employeeId)).get().getEmployeeUnitRef().getUnitName();
+                        if (!(employeeUnit.equalsIgnoreCase(taskUnitName))) {
+                            Error error = new Error(6,
+                                    "Employees are not in the same Unit",
+                                    "Assign employees from the same Unit only");
+                            errors.add(error);
+                            genericResponse.setErrors(errors);
+                            return genericResponse;
+                        }
+                    }
+                }
+                Iterator it = employeeMap.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry)it.next();
+                    if(Integer.parseInt(String.valueOf(pair.getValue())) > 1){
+                        Error error = new Error(6,
+                                "Duplicate employeeId",
+                                "Employee with ID: "+pair.getKey()+" has been assigned twice, " +
+                                        "please remove duplicates");
+                        errors.add(error);
+                        genericResponse.setErrors(errors);
+                    }
+                    it.remove();
+                }
+            }
+        }
         return genericResponse;
     }
 
