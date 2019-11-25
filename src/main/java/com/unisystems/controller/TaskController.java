@@ -82,8 +82,9 @@ public class TaskController {
 
     @PostMapping("postTask")
     public ResponseEntity setTask(@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
-                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status, @RequestHeader String updates) {
-        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.addTask(title, desc, estimationA, estimationB, estimationC, status, updates);
+                                  @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status,
+                                  @RequestHeader String updates ,@RequestHeader String employees) {
+        GenericResponse<GetTaskByIdResponse> finalResponse = taskService.addTask(title, desc, estimationA, estimationB, estimationC, status, updates, employees);
         if (finalResponse.getErrors() != null)
             return new ResponseEntity(finalResponse.getErrors(),
                     null,
@@ -97,9 +98,9 @@ public class TaskController {
     @PutMapping("putTask/{taskId}")
     public ResponseEntity putTask(@PathVariable String taskId, @RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
                                   @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status,
-                                  @RequestHeader String updates) {
+                                  @RequestHeader String updates, @RequestHeader String employees) {
         GenericResponse<GetTaskByIdResponse> finalResponse = taskService.updateTask(taskId, title, desc, estimationA, estimationB,
-                estimationC, status, updates);
+                estimationC, status, updates,employees);
 
         if (finalResponse.getErrors() != null)
             return new ResponseEntity(finalResponse.getErrors(),

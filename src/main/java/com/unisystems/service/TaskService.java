@@ -2,7 +2,9 @@ package com.unisystems.service;
 
 import com.unisystems.enums.TaskStatusEnum;
 import com.unisystems.mapper.TaskMapper;
+import com.unisystems.model.Employee;
 import com.unisystems.model.Task;
+import com.unisystems.repository.EmployeeRepository;
 import com.unisystems.repository.TaskRepository;
 import com.unisystems.response.TaskByIdResponse;
 import com.unisystems.response.TaskResponse;
@@ -28,6 +30,9 @@ public class TaskService {
 
     @Autowired
     Utils utils;
+
+    @Autowired
+    EmployeeRepository employeeRepository;
 
     public GenericResponse<GetAllTaskResponse> getAllTasks() {
         Iterable<Task> retrievedTasks = taskRepository.findAll();
@@ -74,14 +79,21 @@ public class TaskService {
         return taskMapper.taskExists(id,columnName,data,retrievedTasks);
     }
 
-    public GenericResponse<GetTaskByIdResponse> addTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates) {
+    public GenericResponse<GetTaskByIdResponse> addTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates,String employees) {
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
-        GenericResponse<GetTaskByIdResponse> validation =  taskMapper.validateTask(title,desc,estimationA,estimationB,estimationC,status, updates);
+        GenericResponse<GetTaskByIdResponse> validation =  taskMapper.validateTask(title,desc,estimationA,estimationB,estimationC,status, updates,employees);
         if (validation.getErrors() == null){
             List<String> updatesList = Arrays.asList(updates.split(","));
+            List<String> EmployeesIdList = Arrays.asList(employees.split(","));
+            List<Employee> AssignEmployeesList = new ArrayList<>();
+
+            for (String employeeId: EmployeesIdList) {
+                AssignEmployeesList.add(employeeRepository.findById(Long.parseLong(employeeId)).get());
+            }
             Task task = new Task(title,desc,Integer.parseInt(estimationA),Integer.parseInt(estimationB),
                     Integer.parseInt(estimationC), TaskStatusEnum.valueOf(status.toUpperCase()));
             task.getUpdates().addAll(updatesList);
+            task.getEmployeesList().addAll(AssignEmployeesList);
             taskRepository.save(task);
             List<TaskByIdResponse> newTask = new ArrayList<>();
             newTask.add(taskMapper.mapTaskByIdResponseFromTask(task));
@@ -93,9 +105,8 @@ public class TaskService {
     }
 
     public GenericResponse<GetTaskByIdResponse> updateTask(String taskId, String title, String desc,
-                                  String estimationA, String estimationB, String estimationC, String status, String updates) {
-        return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status,updates);
-
+                                  String estimationA, String estimationB, String estimationC, String status, String updates,String employees) {
+        return taskMapper.updateTask(taskId,title,desc,estimationA,estimationB,estimationC,status,updates,employees);
     }
 
     public GenericResponse<String> deleteAllTasks() {

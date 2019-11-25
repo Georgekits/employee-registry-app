@@ -2,13 +2,14 @@ package com.unisystems.mapper;
 
 import com.unisystems.enums.TaskDifficultyEnum;
 import com.unisystems.enums.TaskStatusEnum;
+import com.unisystems.model.Employee;
 import com.unisystems.model.Task;
+import com.unisystems.repository.EmployeeRepository;
 import com.unisystems.repository.TaskRepository;
 import com.unisystems.response.TaskByIdResponse;
 import com.unisystems.response.TaskResponse;
 import com.unisystems.response.generic.Error;
 import com.unisystems.response.generic.GenericResponse;
-import com.unisystems.response.getAllResponse.GetAllTaskResponse;
 import com.unisystems.response.getAllResponse.GetTaskByIdResponse;
 import com.unisystems.strategy.taskStrategy.SearchDifficultyStrategy;
 import com.unisystems.strategy.taskStrategy.SearchDifficultyStrategyFactory;
@@ -32,9 +33,13 @@ public class TaskMapper {
     private TaskRepository taskRepository;
 
     @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
     private SearchDifficultyStrategyFactory searchDifficultyStrategyFactory;
 
-    private String regex = "^[a-zA-Z0-9,]*$";
+    private String regexUpdates = "^[a-zA-Z0-9,]*$";
+    private String regexEmployees = "^[0-9,]*$";
 
     public TaskResponse mapTaskResponseFromTask(Task task) {
         TaskResponse taskResponse = new TaskResponse(
@@ -223,7 +228,8 @@ public class TaskMapper {
     }
 
     public GenericResponse<GetTaskByIdResponse> updateTask(String taskId, String title, String desc, String estimationA,
-                                                          String estimationB, String estimationC, String status, String updates) {
+                                                          String estimationB, String estimationC, String status, String updates,
+                                                           String employees) {
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
         if(!utils.isNumeric(taskId)){
@@ -250,7 +256,7 @@ public class TaskMapper {
             return genericResponse;
         }
         //taskId is OK and exists, then check input
-        GenericResponse<GetTaskByIdResponse> taskValidation = validateTask(title,desc,estimationA,estimationB,estimationC,status, updates);
+        GenericResponse<GetTaskByIdResponse> taskValidation = validateTask(title,desc,estimationA,estimationB,estimationC,status, updates,employees);
         System.out.println("taskValidation: "+taskValidation);
         if(taskValidation.getErrors() == null){
             taskToBeUpdated.setDesc(desc);
@@ -365,7 +371,7 @@ public class TaskMapper {
                 taskRepository.save(tasktoBePatched);
                 break;
             case "updates":
-                boolean matches = Pattern.matches(regex, data);
+                boolean matches = Pattern.matches(regexUpdates, data);
 
                 if (!matches) {
                     Error error = new Error(4,
@@ -386,9 +392,14 @@ public class TaskMapper {
         return genericResponse;
     }
 
-    public GenericResponse<GetTaskByIdResponse> validateTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates) {
+    public GenericResponse<GetTaskByIdResponse> validateTask(String title, String desc, String estimationA, String estimationB, String estimationC, String status, String updates, String employees) {
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
+        List<String> AssignEmployeesList = Arrays.asList(employees.split(","));
+        List<Employee> retrievedEmployees = (List<Employee>) employeeRepository.findAll();
+        String TaskUnitName = new String();
+        Employee masterEmployee = new Employee();
+
 
         if (!utils.isNumeric(estimationA) || !utils.isNumeric(estimationB) || !utils.isNumeric(estimationC)) {
             Error error = new Error(2,
@@ -405,14 +416,61 @@ public class TaskMapper {
             genericResponse.setErrors(errors);
         }
 
-        boolean matches = Pattern.matches(regex, updates);
-        if (!matches) {
+        boolean matchesUpdates = Pattern.matches(regexUpdates, updates);
+        if (!matchesUpdates) {
             Error error = new Error(4,
                     "Wrong input in updates",
                     "Try to delimit your list only with comma");
             errors.add(error);
             genericResponse.setErrors(errors);
         }
+
+        boolean matchesEmployees = Pattern.matches(regexEmployees, employees);
+        if (!matchesEmployees) {
+            Error error = new Error(4,
+                    "Wrong input in Employees",
+                    "Assign an Employee with ID and try to delimit your list only with comma");
+            errors.add(error);
+            genericResponse.setErrors(errors);
+        }else {
+            boolean flag = true ;
+            for (String employeeId: AssignEmployeesList) {
+
+                boolean EmployeeExists = employeeRepository.findById(Long.parseLong(employeeId)).isPresent();
+                if (!EmployeeExists) {
+                    Error error = new Error(5,
+                            "Employee with id " + employeeId + " does not exist",
+                            "Assign an existing Employee");
+                    errors.add(error);
+                    genericResponse.setErrors(errors);
+                    return genericResponse;
+                }
+
+                String employeeUnit = new String();
+                Employee employee = new Employee();
+
+                if (flag) {
+                    masterEmployee = employeeRepository.findById(Long.parseLong(employeeId)).get();
+                    TaskUnitName = masterEmployee.getEmployeeUnitRef().getUnitName();
+                    flag = false;
+
+                } else {
+                    employee = employeeRepository.findById(Long.parseLong(employeeId)).get();
+                    employeeUnit = employee.getEmployeeUnitRef().getUnitName();
+
+                    if (!(employeeUnit.equalsIgnoreCase(TaskUnitName))) {
+                        Error error = new Error(6,
+                                "Employees are not in the same Unit",
+                                "Assign employees from the same Unit only");
+                        errors.add(error);
+                        genericResponse.setErrors(errors);
+                        return genericResponse;
+
+                    }
+                }
+            }
+        }
+
         return genericResponse;
     }
 
