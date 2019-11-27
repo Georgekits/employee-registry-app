@@ -299,6 +299,8 @@ public class TaskMapper {
     public GenericResponse<GetTaskByIdResponse> taskExists(String id, String columnName, String data, List<Task> tasks) {
         List<Error> errors = new ArrayList<Error>();
         GenericResponse<GetTaskByIdResponse> genericResponse = new GenericResponse<>();
+        String taskUnitName = new String();
+
 
         if (!utils.isNumeric(id)) {
             Error error = new Error(1023, "ID NUMERIC ONLY", "The taskId should be numeric");
@@ -323,7 +325,7 @@ public class TaskMapper {
         //task exists and is OK
         if(!(columnName.equals("title")|| columnName.equals("desc") || columnName.equals("estimationA") ||
                 columnName.equals("estimationB")|| columnName.equals("estimationC") || columnName.equals("estimationA") ||
-                columnName.equals("status") || columnName.equals("updates"))) {
+                columnName.equals("status") || columnName.equals("updates") || columnName.equals("employees"))) {
 
             Error error = new Error(166,
                     "This attribute is not a task property",
@@ -403,7 +405,138 @@ public class TaskMapper {
                 tasktoBePatched.getUpdates().addAll(updatesList);
                 taskRepository.save(tasktoBePatched);
                 break;
+            case "employees":
+                boolean matchesEmp = Pattern.matches(regexEmployees, data);
+
+                if (!matchesEmp) {
+                    Error error = new Error(4,
+                            "Wrong input in updates",
+                            "Try to delimit your list only with comma");
+                    errors.add(error);
+                    genericResponse.setErrors(errors);
+                    return genericResponse;
+                } else {
+                    List<String> assignEmployeesIdList = Arrays.asList(data.split(","));
+                    Task taskToBePatch = taskRepository.findById(Long.parseLong(id)).get();
+                    if (taskToBePatch.getEmployeesList().size() == 0) {
+                        boolean flag = true;
+                        HashMap<String, Integer> employeeMap = new HashMap<>();
+                        String employeeUnit = new String();
+                        for (String employeeId : assignEmployeesIdList) {
+                            boolean employeeExists = employeeRepository.findById(Long.parseLong(employeeId)).isPresent();
+                            if (!employeeExists) {
+                                Error error = new Error(5,
+                                        "Employee with id " + employeeId + " does not exist",
+                                        "Assign an existing Employee");
+                                errors.add(error);
+                                genericResponse.setErrors(errors);
+                                return genericResponse;
+                            }
+                            boolean idExists = String.valueOf(employeeMap.get(employeeId)) != null;
+                            if (idExists) {
+                                employeeMap.put(employeeId, employeeMap.get(employeeId) == null ? 1 : employeeMap.get(employeeId) + 1);
+                            }
+                            if (flag) {
+                                taskUnitName = employeeRepository.findById(Long.parseLong(employeeId)).get().getEmployeeUnitRef().getUnitName();
+                                flag = false;
+
+                            } else {
+                                employeeUnit = employeeRepository.findById(Long.parseLong(employeeId)).get().getEmployeeUnitRef().getUnitName();
+                                if (!(employeeUnit.equalsIgnoreCase(taskUnitName))) {
+                                    Error error = new Error(6,
+                                            "Employees are not in the same Unit",
+                                            "Assign employees from the same Unit only");
+                                    errors.add(error);
+                                    genericResponse.setErrors(errors);
+                                    return genericResponse;
+                                }
+                            }
+                        }
+                        Iterator it = employeeMap.entrySet().iterator();
+                        while (it.hasNext()) {
+                            Map.Entry pair = (Map.Entry) it.next();
+                            if (Integer.parseInt(String.valueOf(pair.getValue())) > 1) {
+                                Error error = new Error(6,
+                                        "Duplicate employeeId",
+                                        "Employee with ID: " + pair.getKey() + " has been assigned twice, " +
+                                                "please remove duplicates");
+                                errors.add(error);
+                                genericResponse.setErrors(errors);
+                                return genericResponse;
+                            }
+                            it.remove();
+                        }
+
+                        if (genericResponse.getErrors() == null) {
+                            if (!data.equals("null")) {
+                                List<String> employeesIdList = Arrays.asList(data.split(","));
+                                List<Employee> assignEmployeesList = new ArrayList<>();
+
+                                for (String employeeId : employeesIdList) {
+                                    assignEmployeesList.add(employeeRepository.findById(Long.parseLong(employeeId)).get());
+                                }
+                                tasktoBePatched.getEmployeesList().addAll(assignEmployeesList);
+                            }
+
+
+                            taskRepository.save(tasktoBePatched);
+                        }
+                    } else {
+                        taskToBePatch.getEmployeesList().forEach(employee -> {
+                            for (String s : assignEmployeesIdList) {
+                                if (employee.getEmployeeId().toString().equals(s)) {
+                                    Error error = new Error(6,
+                                            "Duplicate employeeId",
+                                            "Employee with ID: " + s + " has been assigned twice, " +
+                                                    "please remove duplicates");
+                                    errors.add(error);
+                                    genericResponse.setErrors(errors);
+                                    break;
+                                }
+
+
+                            }
+                        });
+                        String TaskUnit = taskToBePatch.getEmployeesList().get(0).getEmployeeUnitRef().getUnitName();
+                        for ( String s : assignEmployeesIdList){
+
+                            Employee EmployeeToBeUpdated = new Employee();
+                            try {
+                                EmployeeToBeUpdated = employeeRepository.findById(Long.parseLong(s)).get();
+                            } catch(NoSuchElementException e){
+                                EmployeeToBeUpdated =null;
+                            }
+                            if(EmployeeToBeUpdated == null){
+                                Error error = new Error(3,
+                                        "Employee N/A",
+                                        "The requested Employee Id does not map with any of the available Employees");
+                                errors.add(error);
+                                genericResponse.setErrors(errors);
+                                return genericResponse;
+                            }
+
+
+                            if (!(TaskUnit.equals(employeeRepository.findById(Long.parseLong(s)).get().getEmployeeUnitRef().getUnitName()))){
+                                Error error = new Error(6,
+                                        "Employees are not in the same Unit",
+                                        "Assign employees from the same Unit only");
+                                errors.add(error);
+                                genericResponse.setErrors(errors);
+
+                            }
+                        }
+                        if (genericResponse.getErrors() != null)
+                        return genericResponse;
+                    }
+
+
+                }
         }
+
+
+
+
+
         List<TaskByIdResponse> taskResponse = new ArrayList<TaskByIdResponse>();
         taskResponse.addAll(mapAllTasksById(tasks, id));
         genericResponse.setData(new GetTaskByIdResponse(taskResponse));
