@@ -1,6 +1,5 @@
 package com.unisystems.response.getAllResponse;
 
-import com.unisystems.model.Task;
 import com.unisystems.response.TaskResponse;
 
 import java.util.List;

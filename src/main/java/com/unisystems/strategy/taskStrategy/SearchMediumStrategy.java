@@ -1,7 +1,6 @@
 package com.unisystems.strategy.taskStrategy;
 
 import com.unisystems.response.TaskByIdResponse;
-import com.unisystems.response.TaskResponse;
 
 import java.util.ArrayList;
 import java.util.List;

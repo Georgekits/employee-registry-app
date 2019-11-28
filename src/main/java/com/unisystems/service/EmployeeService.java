@@ -25,6 +25,13 @@ public class EmployeeService {
     @Autowired
     Utils utils;
 
+    public EmployeeService(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper,
+                           Utils utils){
+        this.employeeMapper = employeeMapper;
+        this.employeeRepository = employeeRepository;
+        this.utils = utils;
+    }
+
     public GenericResponse<GetAllEmployeeResponse> getAllEmployees() {
         List<Employee> retrievedEmployees = (List<Employee>) employeeRepository.findAll();
         List<EmployeeResponse> employees = new ArrayList<EmployeeResponse>();

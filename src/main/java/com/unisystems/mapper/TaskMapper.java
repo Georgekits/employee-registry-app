@@ -339,11 +339,9 @@ public class TaskMapper {
         switch (columnName) {
             case "title":
                 tasktoBePatched.setTitle(data);
-                taskRepository.save(tasktoBePatched);
                 break;
             case "desc":
                 tasktoBePatched.setDesc(data);
-                taskRepository.save(tasktoBePatched);
                 break;
             case "estimationA":
                 if (!utils.isNumeric(data)) {
@@ -356,10 +354,8 @@ public class TaskMapper {
                     return genericResponse;
                 }
                 tasktoBePatched.setEstimationA(Integer.parseInt(data));
-                taskRepository.save(tasktoBePatched);
                 break;
             case "estimationB":
-
                 if (!utils.isNumeric(data)) {
                     Error error = new Error(2,
                             "The estimationB is not Numeric",
@@ -370,10 +366,8 @@ public class TaskMapper {
                     return genericResponse;
                 }
                 tasktoBePatched.setEstimationB(Integer.parseInt(data));
-                taskRepository.save(tasktoBePatched);
                 break;
             case "estimationC":
-
                 if (!utils.isNumeric(data)) {
                     Error error = new Error(2,
                             "The estimationC is not Numeric",
@@ -384,11 +378,18 @@ public class TaskMapper {
                     return genericResponse;
                 }
                 tasktoBePatched.setEstimationC(Integer.parseInt(data));
-                taskRepository.save(tasktoBePatched);
                 break;
             case "status":
-                tasktoBePatched.setStatus(TaskStatusEnum.valueOf(data.toUpperCase()));
-                taskRepository.save(tasktoBePatched);
+                if (!(data.equalsIgnoreCase(String.valueOf(TaskStatusEnum.NEW)) || data.equalsIgnoreCase(String.valueOf(TaskStatusEnum.STARTED)) ||
+                        data.equalsIgnoreCase(String.valueOf(TaskStatusEnum.DONE)))){
+                    Error error = new Error(3,
+                            "Status does not exist",
+                            "TRY NEW,STARTED,DONE");
+                    errors.add(error);
+                    genericResponse.setErrors(errors);
+                } else {
+                    tasktoBePatched.setStatus(TaskStatusEnum.valueOf(data.toUpperCase()));
+                }
                 break;
             case "updates":
                 boolean matches = Pattern.matches(regexUpdates, data);
@@ -403,7 +404,6 @@ public class TaskMapper {
                 }
                 List<String> updatesList = Arrays.asList(data.split(","));
                 tasktoBePatched.getUpdates().addAll(updatesList);
-                taskRepository.save(tasktoBePatched);
                 break;
             case "employees":
                 boolean matchesEmp = Pattern.matches(regexEmployees, data);
@@ -477,9 +477,6 @@ public class TaskMapper {
                                 }
                                 tasktoBePatched.getEmployeesList().addAll(assignEmployeesList);
                             }
-
-
-                            taskRepository.save(tasktoBePatched);
                         }
                     } else {
                         taskToBePatch.getEmployeesList().forEach(employee -> {
@@ -493,11 +490,9 @@ public class TaskMapper {
                                     genericResponse.setErrors(errors);
                                     break;
                                 }
-
-
                             }
                         });
-                        String TaskUnit = taskToBePatch.getEmployeesList().get(0).getEmployeeUnitRef().getUnitName();
+                        String taskUnit = taskToBePatch.getEmployeesList().get(0).getEmployeeUnitRef().getUnitName();
                         for ( String s : assignEmployeesIdList){
 
                             Employee EmployeeToBeUpdated = new Employee();
@@ -515,8 +510,7 @@ public class TaskMapper {
                                 return genericResponse;
                             }
 
-
-                            if (!(TaskUnit.equals(employeeRepository.findById(Long.parseLong(s)).get().getEmployeeUnitRef().getUnitName()))){
+                            if (!(taskUnit.equals(employeeRepository.findById(Long.parseLong(s)).get().getEmployeeUnitRef().getUnitName()))){
                                 Error error = new Error(6,
                                         "Employees are not in the same Unit",
                                         "Assign employees from the same Unit only");
@@ -528,15 +522,10 @@ public class TaskMapper {
                         if (genericResponse.getErrors() != null)
                         return genericResponse;
                     }
-
-
                 }
+                break;
         }
-
-
-
-
-
+        if (genericResponse.getErrors() == null) taskRepository.save(tasktoBePatched);
         List<TaskByIdResponse> taskResponse = new ArrayList<TaskByIdResponse>();
         taskResponse.addAll(mapAllTasksById(tasks, id));
         genericResponse.setData(new GetTaskByIdResponse(taskResponse));

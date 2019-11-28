@@ -1,6 +1,5 @@
 package com.unisystems.response.getAllResponse;
 
-import com.unisystems.model.Company;
 import com.unisystems.response.CompanyResponse;
 
 import java.util.List;

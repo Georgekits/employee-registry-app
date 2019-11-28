@@ -1,4 +1,4 @@
-package com.unisystems.UniStructure.mapper;
+package com.mapperTesting;
 
 import com.unisystems.mapper.CompanyMapper;
 import com.unisystems.model.Company;

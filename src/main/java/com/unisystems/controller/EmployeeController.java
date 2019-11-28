@@ -2,7 +2,6 @@ package com.unisystems.controller;
 
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllEmployeeResponse;
-import com.unisystems.response.getAllResponse.GetAllUnitResponse;
 import com.unisystems.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
+
+    public EmployeeController(EmployeeService service) {
+        this.employeeService = service;
+    }
 
     @GetMapping("/getEmployees")
     public ResponseEntity getEmployees() {
