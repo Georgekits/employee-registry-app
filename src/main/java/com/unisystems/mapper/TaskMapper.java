@@ -525,6 +525,7 @@ public class TaskMapper {
                 }
                 break;
         }
+
         if (genericResponse.getErrors() == null) taskRepository.save(tasktoBePatched);
         List<TaskByIdResponse> taskResponse = new ArrayList<TaskByIdResponse>();
         taskResponse.addAll(mapAllTasksById(tasks, id));
