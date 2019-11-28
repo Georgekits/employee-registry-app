@@ -62,7 +62,7 @@ public class TaskMapper {
         return taskByIdResponse;
     }
 
-    private TaskDifficultyEnum getDifficulty(Task task) {
+    public TaskDifficultyEnum getDifficulty(Task task) {
         int avgDifficulty = ((task.getEstimationA() + task.getEstimationB() + task.getEstimationC()) / 3);
 
         if (avgDifficulty < 2) return TaskDifficultyEnum.EASY;
@@ -528,14 +528,8 @@ public class TaskMapper {
                         if (genericResponse.getErrors() != null)
                         return genericResponse;
                     }
-
-
                 }
         }
-
-
-
-
 
         List<TaskByIdResponse> taskResponse = new ArrayList<TaskByIdResponse>();
         taskResponse.addAll(mapAllTasksById(tasks, id));
