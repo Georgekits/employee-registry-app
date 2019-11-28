@@ -7,6 +7,7 @@ import com.unisystems.model.Department;
 import com.unisystems.model.Employee;
 import com.unisystems.model.Task;
 import com.unisystems.model.Unit;
+import com.unisystems.response.TaskByIdResponse;
 import com.unisystems.response.TaskResponse;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,6 +21,7 @@ public class TaskMapperShould {
     private Employee employeeInput;
     private Unit unitInput;
     private TaskResponse taskResponseOutput;
+    private TaskByIdResponse taskByIdResponseOutput;
 
     @Mock
     Department humanResources;
@@ -39,32 +41,50 @@ public class TaskMapperShould {
         taskInput.getEmployeesList().add(employeeInput);
         taskInput.getUpdates().add("New update");
         taskResponseOutput = mapper.mapTaskResponseFromTask(taskInput);
+        taskByIdResponseOutput = mapper.mapTaskByIdResponseFromTask(taskInput);
     }
 
     @Test
     public void keepSameId(){
         Assert.assertEquals(100, taskResponseOutput.getTaskId());
+        Assert.assertEquals(100,taskByIdResponseOutput.getTaskId());
     }
 
     @Test
     public void keepSameTitle(){
         Assert.assertEquals(taskInput.getTitle(), taskResponseOutput.getTaskTitle());
+        Assert.assertEquals(taskInput.getTitle(), taskByIdResponseOutput.getTaskTitle());
     }
+
 
     @Test
     public void keepSameDesk(){
         Assert.assertEquals(taskInput.getDesc(), taskResponseOutput.getTaskDesc());
+        Assert.assertEquals(taskInput.getDesc(), taskByIdResponseOutput.getTaskDesc());
     }
 
     @Test
     public void keepSameDifficulty(){
         Assert.assertEquals(mapper.getDifficulty(taskInput), taskResponseOutput.getDifficulty());
+        Assert.assertEquals(mapper.getDifficulty(taskInput), taskByIdResponseOutput.getDifficulty());
     }
 
     @Test
     public void keepSameStatus(){
         Assert.assertEquals(taskInput.getStatus(), taskResponseOutput.getTaskStatus());
+        Assert.assertEquals(taskInput.getStatus(), taskByIdResponseOutput.getTaskStatus());
     }
+
+    @Test
+    public void KeepSameEmployeeInfo(){
+        Assert.assertEquals(taskInput.getEmployeeInfo(taskInput),taskByIdResponseOutput.getAssignedEmployees());
+    }
+
+    @Test
+    public  void KeepSameUpdates(){
+        Assert.assertEquals(taskInput.getUpdates(),taskByIdResponseOutput.getUpdates());
+    }
+
 
 
 }
