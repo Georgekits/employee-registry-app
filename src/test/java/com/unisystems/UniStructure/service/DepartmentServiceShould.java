@@ -1,6 +1,5 @@
 package com.unisystems.UniStructure.service;
 
-
 import com.unisystems.mapper.DepartmentMapper;
 import com.unisystems.model.BusinessUnit;
 import com.unisystems.model.Company;
@@ -13,11 +12,8 @@ import com.unisystems.service.DepartmentService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.*;
-//import org.mockito.Mockito;
-//import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
@@ -33,20 +29,14 @@ public class DepartmentServiceShould {
     private DepartmentService departmentService;
     @Mock
     private DepartmentResponse departmentResponseFromMapper;
-
     @Mock
     private DepartmentRepository departmentRepository;
-
     @Mock
     private DepartmentMapper departmentMapper;
 
-
     private Company companyInput = new Company("UniSystems", "That's the first company of this project and it listens to UniSystems");
-
     private BusinessUnit businessUnitInput = new BusinessUnit("PublicSector", "That's the business unit that is well known as Public Sector", companyInput);
-
     private ArrayList<Department> mockedDepartments = new ArrayList<Department>();
-
 
 
     @Before
@@ -74,9 +64,9 @@ public class DepartmentServiceShould {
 
     @Test
     public void returnListOfDepartmentResponse(){
-        GenericResponse<GetAllDepartmentResponse> output=departmentService.getAllDepartments();//returns list of errors or
+        GenericResponse<GetAllDepartmentResponse> output=departmentService.getAllDepartments();
         List<DepartmentResponse> theList;
-        theList=output.getData().getDepartmentResponseList();//iteration
+        theList=output.getData().getDepartmentResponseList();
         Assert.assertEquals(2, theList.size());
         List<DepartmentResponse> expectedList=new ArrayList<>();
         expectedList.add(departmentResponseFromMapper);
@@ -84,6 +74,4 @@ public class DepartmentServiceShould {
         Assert.assertThat(theList, CoreMatchers.hasItems(departmentResponseFromMapper,departmentResponseFromMapper));
 
     }
-
-
 }
