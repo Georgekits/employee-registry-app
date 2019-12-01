@@ -1,4 +1,4 @@
-package com.unisystems;
+package com.controller;
 
 import com.unisystems.controller.EmployeeController;
 import com.unisystems.response.EmployeeResponse;
@@ -9,7 +9,6 @@ import com.unisystems.service.EmployeeService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -23,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 public class EmployeeControllerShould {
     EmployeeController employeeController;
+    GenericResponse<GetAllEmployeeResponse> mockedResponse = new GenericResponse<>();
 
     @Mock
     EmployeeService employeeService;
@@ -34,7 +34,10 @@ public class EmployeeControllerShould {
     EmployeeResponse employee2;
 
     @Mock
-    Error error;
+    Error error1;
+
+    @Mock
+    Error error2;
 
     @Before
     public void setup(){
@@ -43,9 +46,7 @@ public class EmployeeControllerShould {
         mockedEmployees.add(employee1);
         mockedEmployees.add(employee2);
 
-        GenericResponse<GetAllEmployeeResponse> mockedResponse = new GenericResponse();
         mockedResponse.setData(new GetAllEmployeeResponse(mockedEmployees));
-
         when(employeeService.getAllEmployees()).thenReturn(mockedResponse);
         employeeController = new EmployeeController(employeeService);
     }
@@ -62,17 +63,25 @@ public class EmployeeControllerShould {
         GenericResponse<GetAllEmployeeResponse> genericError = mockServiceError();
         when(employeeService.getAllEmployees()).thenReturn(genericError);
         ResponseEntity<GetAllEmployeeResponse> actual = employeeController.getEmployees();
-        System.out.println("actual: "+actual.getBody());
-
-        Assert.assertEquals(actual.getBody(), CoreMatchers.hasItems(error));
-//        Assert.assertEquals(HttpStatus.BAD_GATEWAY, actual.getStatusCode());
+        Assert.assertThat(genericError.getErrors(), CoreMatchers.hasItems(error1, error2));
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
     }
 
     private GenericResponse<GetAllEmployeeResponse> mockServiceError() {
-        GenericResponse<GetAllEmployeeResponse> errorResponse = new GenericResponse();
+        GenericResponse<GetAllEmployeeResponse> errorResponse = new GenericResponse<>();
         List<Error> mockedErrors = new ArrayList<>();
-        mockedErrors.add(error);
+        mockedErrors.add(error1);
+        mockedErrors.add(error2);
         errorResponse.setErrors(mockedErrors);
         return errorResponse;
+    }
+
+    @Test
+    public void returnEmployeesWithCriteria() {
+        String criteriaId="",searchCriteria="";
+        when(employeeService.getEmployeesWithCriteria(searchCriteria,criteriaId)).thenReturn(mockedResponse);
+        ResponseEntity<GetAllEmployeeResponse> actual = employeeController.getEmployeeWithCriteria(criteriaId, searchCriteria);
+        Assert.assertThat(actual.getBody().getEmployeeResponseList(), CoreMatchers.hasItems(employee1, employee2));
+        Assert.assertEquals(HttpStatus.OK, actual.getStatusCode());
     }
 }

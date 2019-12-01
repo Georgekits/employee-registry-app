@@ -1,4 +1,4 @@
-package com.mapperTesting;
+package com.mapper;
 
 import com.unisystems.mapper.DepartmentMapper;
 import com.unisystems.model.BusinessUnit;

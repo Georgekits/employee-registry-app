@@ -1,4 +1,4 @@
-package com.unisystems.UniStructure.service;
+package com.service;
 
 import com.unisystems.mapper.DepartmentMapper;
 import com.unisystems.model.BusinessUnit;

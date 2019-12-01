@@ -1,4 +1,4 @@
-package com.mapperTesting;
+package com.mapper;
 
 import com.unisystems.enums.EmployeeStatusEnum;
 import com.unisystems.mapper.EmployeeMapper;
