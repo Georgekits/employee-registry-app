@@ -35,6 +35,11 @@ public class TaskMapper {
     @Autowired
     private SearchDifficultyStrategyFactory searchDifficultyStrategyFactory;
 
+    public TaskMapper(Utils utils, TaskRepository taskRepository) {
+        this.utils = utils;
+        this.taskRepository = taskRepository;
+    }
+
     private String regexUpdates = "^[a-zA-Z0-9,]*$";
     private String regexEmployees = "^[0-9,]*$";
 
