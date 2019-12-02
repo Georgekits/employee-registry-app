@@ -16,6 +16,10 @@ public class TaskController {
     @Autowired
     TaskService taskService;
 
+    public TaskController(TaskService mockService) {
+        this.taskService = mockService;
+    }
+
     @GetMapping("getAll")
     public ResponseEntity getAll() {
         GenericResponse<GetAllTaskResponse> finalResponse = taskService.getAllTasks();

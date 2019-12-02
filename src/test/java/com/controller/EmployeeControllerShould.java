@@ -1,31 +1,38 @@
 package com.controller;
 
 import com.unisystems.controller.EmployeeController;
+import com.unisystems.enums.EmployeeStatusEnum;
+import com.unisystems.mapper.EmployeeMapper;
+import com.unisystems.repository.EmployeeRepository;
 import com.unisystems.response.EmployeeResponse;
 import com.unisystems.response.generic.Error;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllEmployeeResponse;
 import com.unisystems.service.EmployeeService;
+import com.unisystems.strategy.employeeStrategy.SearchEmployeeStrategyFactory;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 public class EmployeeControllerShould {
     EmployeeController employeeController;
+    EmployeeMapper employeeMapper;
     GenericResponse<GetAllEmployeeResponse> mockedResponse = new GenericResponse<>();
 
     @Mock
-    EmployeeService employeeService;
+    EmployeeService mockService;
 
     @Mock
     EmployeeResponse employee1;
@@ -39,31 +46,37 @@ public class EmployeeControllerShould {
     @Mock
     Error error2;
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private SearchEmployeeStrategyFactory searchEmployeeStrategyFactory;
+
     @Before
     public void setup(){
         MockitoAnnotations.initMocks(this);
         List<EmployeeResponse> mockedEmployees = new ArrayList<>();
         mockedEmployees.add(employee1);
         mockedEmployees.add(employee2);
-
+        employeeMapper = new EmployeeMapper();
         mockedResponse.setData(new GetAllEmployeeResponse(mockedEmployees));
-        when(employeeService.getAllEmployees()).thenReturn(mockedResponse);
-        employeeController = new EmployeeController(employeeService);
+        employeeController = new EmployeeController(mockService);
     }
 
     @Test
     public void returnAllEmployees() {
+        when(mockService.getAllEmployees()).thenReturn(mockedResponse);
         ResponseEntity<GetAllEmployeeResponse> actual = employeeController.getEmployees();
-        Assert.assertThat(actual.getBody().getEmployeeResponseList(), CoreMatchers.hasItems(employee1, employee2));
+        assertThat(actual.getBody().getEmployeeResponseList(), CoreMatchers.hasItems(employee1, employee2));
         Assert.assertEquals(HttpStatus.OK, actual.getStatusCode());
     }
 
     @Test
     public void returnsErrorWhenServiceFails() {
         GenericResponse<GetAllEmployeeResponse> genericError = mockServiceError();
-        when(employeeService.getAllEmployees()).thenReturn(genericError);
+        when(mockService.getAllEmployees()).thenReturn(genericError);
         ResponseEntity<GetAllEmployeeResponse> actual = employeeController.getEmployees();
-        Assert.assertThat(genericError.getErrors(), CoreMatchers.hasItems(error1, error2));
+        assertThat(genericError.getErrors(), CoreMatchers.hasItems(error1, error2));
         Assert.assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
     }
 
@@ -79,9 +92,27 @@ public class EmployeeControllerShould {
     @Test
     public void returnEmployeesWithCriteria() {
         String criteriaId="",searchCriteria="";
-        when(employeeService.getEmployeesWithCriteria(searchCriteria,criteriaId)).thenReturn(mockedResponse);
-        ResponseEntity<GetAllEmployeeResponse> actual = employeeController.getEmployeeWithCriteria(criteriaId, searchCriteria);
-        Assert.assertThat(actual.getBody().getEmployeeResponseList(), CoreMatchers.hasItems(employee1, employee2));
+        when(mockService.getEmployeesWithCriteria(searchCriteria,criteriaId)).thenReturn(mockedResponse);
+        ResponseEntity<GetAllEmployeeResponse> actual = employeeController.getEmployeeWithCriteria(searchCriteria, criteriaId);
+        assertThat(actual.getBody().getEmployeeResponseList(), CoreMatchers.hasItems(employee1, employee2));
         Assert.assertEquals(HttpStatus.OK, actual.getStatusCode());
+    }
+
+    @Test
+    public void returnSpecificEmployee(){
+        String criteriaId="4",searchCriteria="unit";
+        GenericResponse<GetAllEmployeeResponse> resp = new GenericResponse<>();
+        List<EmployeeResponse> empRespList = new ArrayList<>();
+        EmployeeResponse expected = new EmployeeResponse(1L,2938,"Dimitris Papanikolaou","6983628263",
+                "Years: 0, Months: 5, Days 3", EmployeeStatusEnum.INACTIVE,"Unisystems","ForthUnit",
+                "HRConsultant");
+        empRespList.add(expected);
+        resp.setData(new GetAllEmployeeResponse(empRespList));
+        when(mockService.getEmployeesWithCriteria(searchCriteria,criteriaId)).thenReturn(resp);
+        ResponseEntity<GetAllEmployeeResponse> actual = employeeController.getEmployeeWithCriteria(searchCriteria, criteriaId);
+        EmployeeResponse actualResponse = actual.getBody().getEmployeeResponseList().get(0);
+
+        Assert.assertEquals(expected.getEmployeeId(),actualResponse.getEmployeeId());
+        Assert.assertEquals(expected.getEmployeeUnitName(),actualResponse.getEmployeeUnitName());
     }
 }
