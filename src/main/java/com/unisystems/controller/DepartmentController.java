@@ -14,6 +14,8 @@ public class DepartmentController {
     @Autowired
     DepartmentService departmentService;
 
+    public DepartmentController(DepartmentService service){this.departmentService=service;}
+
     @GetMapping("/getDepartments")
     public ResponseEntity getDepartments() {
         GenericResponse<GetAllDepartmentResponse> finalResponse = departmentService.getAllDepartments();
