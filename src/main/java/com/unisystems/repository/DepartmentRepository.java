@@ -21,7 +21,7 @@ public interface DepartmentRepository extends CrudRepository<Department, Long> {
 
     @Override
     @RestResource(exported = false)
-    public Department save(Department s);
+    Department save(Department s);
 
     @Override
     @RestResource(exported = false)
