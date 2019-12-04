@@ -20,6 +20,11 @@ public class BusinessUnitService {
     @Autowired
     BusinessUnitMapper businessUnitMapper;
 
+    public BusinessUnitService(BusinessUnitRepository businessUnitRepository, BusinessUnitMapper businessUnitMapper) {
+        this.businessUnitRepository = businessUnitRepository;
+        this.businessUnitMapper = businessUnitMapper;
+    }
+
     public GenericResponse<GetAllBusinessUnitResponse> getBusinessUnits() {
         List<BusinessUnit> retrievedBusinessUnits = (List<BusinessUnit>) businessUnitRepository.findAll();
         List<BusinessUnitResponse> businessUnits = new ArrayList<BusinessUnitResponse>();
