@@ -1,6 +1,5 @@
 package com.unisystems.repository;
 
-import com.unisystems.model.Company;
 import com.unisystems.model.Department;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RestResource;
@@ -22,7 +21,7 @@ public interface DepartmentRepository extends CrudRepository<Department, Long> {
 
     @Override
     @RestResource(exported = false)
-    public Department save(Department s);
+    Department save(Department s);
 
     @Override
     @RestResource(exported = false)

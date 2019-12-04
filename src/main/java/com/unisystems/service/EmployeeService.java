@@ -7,8 +7,7 @@ import com.unisystems.response.EmployeeResponse;
 import com.unisystems.response.generic.Error;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllEmployeeResponse;
-import com.unisystems.response.strategy.SearchEmployeeStrategy;
-import com.unisystems.response.strategy.SearchEmployeeStrategyFactory;
+import com.unisystems.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +21,16 @@ public class EmployeeService {
 
     @Autowired
     EmployeeMapper employeeMapper;
+
+    @Autowired
+    Utils utils;
+
+    public EmployeeService(EmployeeRepository employeeRepository, EmployeeMapper employeeMapper,
+                           Utils utils){
+        this.employeeMapper = employeeMapper;
+        this.employeeRepository = employeeRepository;
+        this.utils = utils;
+    }
 
     public GenericResponse<GetAllEmployeeResponse> getAllEmployees() {
         List<Employee> retrievedEmployees = (List<Employee>) employeeRepository.findAll();
@@ -39,7 +48,7 @@ public class EmployeeService {
         GenericResponse<GetAllEmployeeResponse> genericResponse = new GenericResponse<>();
         List<Error> errors = new ArrayList<>();
         //Check if criteriaId is numeric
-        if(!employeeMapper.isNumeric(criteriaId)){
+        if(!utils.isNumeric(criteriaId)){
             Error error = new Error(100,
                     "EmployeeId numeric only",
                     "The employeeId, must only be numeric");

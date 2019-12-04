@@ -32,4 +32,5 @@ public class GenericResponse<T> {
     public void setErrors(List<Error> errors) {
         this.errors = errors;
     }
+
 }

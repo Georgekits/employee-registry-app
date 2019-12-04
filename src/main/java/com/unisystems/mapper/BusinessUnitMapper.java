@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class BusinessUnitMapper {
-    public BusinessUnitResponse mapCompanyResponseFromCompany(BusinessUnit bu) {
+    public BusinessUnitResponse mapBUResponseFromBU(BusinessUnit bu) {
         BusinessUnitResponse businessUnitResponse = new BusinessUnitResponse (
                 bu.getBusinessUnitId(),
                 bu.getBusinessUnitName(),

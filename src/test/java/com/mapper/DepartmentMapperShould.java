@@ -1,4 +1,4 @@
-package com.unisystems.UniStructure;
+package com.mapper;
 
 import com.unisystems.mapper.DepartmentMapper;
 import com.unisystems.model.BusinessUnit;
@@ -7,9 +7,11 @@ import com.unisystems.model.Department;
 import com.unisystems.response.DepartmentResponse;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-class DepartmentMapperShould {
+@SpringBootTest
+public class DepartmentMapperShould {
 
     private DepartmentMapper departmentMapper;
     private Department departmentInput;
@@ -18,9 +20,10 @@ class DepartmentMapperShould {
     private DepartmentResponse output;
 
     @Before
-    void setUp() {
+    public void setUp() {
         departmentMapper = new DepartmentMapper();
-        businessUnitInput = new BusinessUnit("UniSystems", "This is the first company", companyInput);
+        companyInput = new Company("UniSystems","That's the first company of this project and it listens to UniSystems");
+        businessUnitInput = new BusinessUnit("PublicSector", "This is the first PublicSector", companyInput);
         businessUnitInput.setBusinessUnitId(50L);
 
         departmentInput = new Department("IT", "This is the IT department", businessUnitInput);

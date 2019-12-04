@@ -1,7 +1,6 @@
 package com.unisystems.model;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -21,6 +20,13 @@ public class Unit {
     public Unit() {}
 
     public Unit(String unitName, String unitDescription, Department departmentRef) {
+        this.unitName = unitName;
+        this.unitDescription = unitDescription;
+        this.departmentRef = departmentRef;
+    }
+
+    public Unit(Long unitId, String unitName, String unitDescription, Department departmentRef) {
+        this.unitId = unitId;
         this.unitName = unitName;
         this.unitDescription = unitDescription;
         this.departmentRef = departmentRef;

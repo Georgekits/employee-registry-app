@@ -21,7 +21,7 @@ public interface CompanyRepository extends CrudRepository<Company, Long> {
 
     @Override
     @RestResource(exported = false)
-    public Company save(Company s);
+    Company save(Company s);
 
     @Override
     @RestResource(exported = false)

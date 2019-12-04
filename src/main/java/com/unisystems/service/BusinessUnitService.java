@@ -20,13 +20,18 @@ public class BusinessUnitService {
     @Autowired
     BusinessUnitMapper businessUnitMapper;
 
+    public BusinessUnitService(BusinessUnitRepository businessUnitRepository, BusinessUnitMapper businessUnitMapper) {
+        this.businessUnitRepository = businessUnitRepository;
+        this.businessUnitMapper = businessUnitMapper;
+    }
+
     public GenericResponse<GetAllBusinessUnitResponse> getBusinessUnits() {
         List<BusinessUnit> retrievedBusinessUnits = (List<BusinessUnit>) businessUnitRepository.findAll();
         List<BusinessUnitResponse> businessUnits = new ArrayList<BusinessUnitResponse>();
         GenericResponse<GetAllBusinessUnitResponse> genericResponse = new GenericResponse<>();
 
         retrievedBusinessUnits.forEach((company) -> {
-            businessUnits.add(businessUnitMapper.mapCompanyResponseFromCompany(company));
+            businessUnits.add(businessUnitMapper.mapBUResponseFromBU(company));
         });
         genericResponse.setData(new GetAllBusinessUnitResponse(businessUnits));
         return genericResponse;

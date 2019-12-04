@@ -6,8 +6,8 @@ import com.unisystems.response.EmployeeResponse;
 import com.unisystems.response.generic.Error;
 import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllEmployeeResponse;
-import com.unisystems.response.strategy.SearchEmployeeStrategy;
-import com.unisystems.response.strategy.SearchEmployeeStrategyFactory;
+import com.unisystems.strategy.employeeStrategy.SearchEmployeeStrategy;
+import com.unisystems.strategy.employeeStrategy.SearchEmployeeStrategyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,10 +22,10 @@ import java.util.List;
 public class EmployeeMapper {
 
     @Autowired
-    EmployeeRepository employeeRepository;
+    private EmployeeRepository employeeRepository;
 
     @Autowired
-    SearchEmployeeStrategyFactory searchEmployeeStrategyFactory;
+    private SearchEmployeeStrategyFactory searchEmployeeStrategyFactory;
 
     public EmployeeResponse mapEmployeeResponseFromEmployee(Employee emp) {
         EmployeeResponse employeeResponse = new EmployeeResponse(
@@ -42,16 +42,16 @@ public class EmployeeMapper {
         return employeeResponse;
     }
 
-    private String findUnit(Employee emp) {
+    public String findUnit(Employee emp) {
         Unit empUnit = emp.getEmployeeUnitRef();
         return empUnit == null ? "N/A" : empUnit.getUnitName();
     }
 
-    private String getEmployeeFullName(Employee emp) {
+    public String getEmployeeFullName(Employee emp) {
         return emp.getFirstName() + " " + emp.getLastName();
     }
 
-    private String findWorkingPeriod(Date startDate, Date endDate) {
+    public String findWorkingPeriod(Date startDate, Date endDate) {
         if (endDate == null) return "PRESENT";
         LocalDate endDateLocal = endDate.toInstant()
                 .atZone(ZoneId.systemDefault())
@@ -64,18 +64,6 @@ public class EmployeeMapper {
                 ", Months: " + diff.getMonths() +
                 ", Days " + diff.getDays();
         return response;
-    }
-
-    public boolean isNumeric(String str) {
-        if (str == null || str.length() == 0) {
-            return false;
-        }
-        for (char c : str.toCharArray()) {
-            if (!Character.isDigit(c)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public List<EmployeeResponse> mapAllEmployees(List<Employee> employees) {

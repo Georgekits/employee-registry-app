@@ -21,6 +21,9 @@ public class CompanyService {
     @Autowired
     CompanyMapper companyMapper;
 
+    public CompanyService(CompanyMapper companyMapper, CompanyRepository companyRepository) {
+    }
+
     public GenericResponse<GetAllCompanyResponse> getAllCompanies() {
         List<Company> retrievedCompanies = (List<Company>) companyRepository.findAll();
         List<CompanyResponse> companies = new ArrayList<CompanyResponse>();

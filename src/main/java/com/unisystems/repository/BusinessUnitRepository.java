@@ -1,7 +1,6 @@
 package com.unisystems.repository;
 
 import com.unisystems.model.BusinessUnit;
-import com.unisystems.model.Company;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;

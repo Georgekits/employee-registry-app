@@ -14,8 +14,12 @@ public class UnitController {
     @Autowired
     UnitService unitService;
 
+    public UnitController(UnitService service){
+        this.unitService = service;
+    }
+
     @GetMapping("/getUnits")
-    public ResponseEntity getDepartments() {
+    public ResponseEntity getAllUnits() {
         GenericResponse<GetAllUnitResponse> finalResponse = unitService.getAllUnits();
         if(finalResponse.getErrors() != null)
             return new ResponseEntity(finalResponse.getErrors(),
