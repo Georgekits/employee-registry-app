@@ -1,8 +1,6 @@
 package com.controller;
 
-import com.unisystems.controller.EmployeeController;
 import com.unisystems.controller.TaskController;
-import com.unisystems.response.EmployeeResponse;
 import com.unisystems.response.TaskByIdResponse;
 import com.unisystems.response.TaskResponse;
 import com.unisystems.response.generic.Error;
@@ -10,7 +8,6 @@ import com.unisystems.response.generic.GenericResponse;
 import com.unisystems.response.getAllResponse.GetAllEmployeeResponse;
 import com.unisystems.response.getAllResponse.GetAllTaskResponse;
 import com.unisystems.response.getAllResponse.GetTaskByIdResponse;
-import com.unisystems.service.EmployeeService;
 import com.unisystems.service.TaskService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;

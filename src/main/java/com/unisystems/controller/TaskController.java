@@ -95,7 +95,7 @@ public class TaskController {
                     HttpStatus.BAD_REQUEST);
         return new ResponseEntity(finalResponse.getData(),
                 null,
-                HttpStatus.OK
+                HttpStatus.CREATED
         );
     }
 
@@ -134,7 +134,7 @@ public class TaskController {
         if(finalResponse.getErrors() == null) {
             return new ResponseEntity("Every task has been deleted",
                     null,
-                    HttpStatus.OK
+                    HttpStatus.ACCEPTED
             );
         }
         return new ResponseEntity(finalResponse.getErrors(),
@@ -150,7 +150,7 @@ public class TaskController {
         if(finalResponse.getErrors() == null) {
             return new ResponseEntity("Task with id: "+taskId+" has been deleted!",
                     null,
-                    HttpStatus.OK
+                    HttpStatus.ACCEPTED
             );
         }
         return new ResponseEntity(finalResponse.getErrors(),
