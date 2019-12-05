@@ -22,6 +22,8 @@ public class CompanyService {
     CompanyMapper companyMapper;
 
     public CompanyService(CompanyMapper companyMapper, CompanyRepository companyRepository) {
+        this.companyMapper = companyMapper;
+        this.companyRepository = companyRepository;
     }
 
     public GenericResponse<GetAllCompanyResponse> getAllCompanies() {
