@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "Task")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,8 +14,8 @@ public class Task {
     private long id;
     @Column(name = "TITLE")
     private String title;
-    @Column(name = "DESC")
-    private String desc;
+    @Column(name = "DESCRIPTION")
+    private String description;
     @Column(name = "ESTIMATION_A")
     private int estimationA;
     @Column(name = "ESTIMATION_B")
@@ -24,16 +25,18 @@ public class Task {
     @Column(name = "STATUS")
     private TaskStatusEnum status;
     @ElementCollection
+    @Column(name = "UPDATES")
     private List<String> updates = new ArrayList<String>();
+    @Column(name = "EMPLOYEE_LIST")
     @ManyToMany
-    @JoinColumn(name = "EMPLOYEE_LIST", referencedColumnName = "employeeId")
     private List<Employee> employeesList = new ArrayList<Employee>();
+
 
     public Task() {}
 
     public Task(String title, String desc, int estimationA, int estimationB, int estimationC, TaskStatusEnum status) {
         this.title = title;
-        this.desc = desc;
+        this.description = desc;
         this.estimationA = estimationA;
         this.estimationB = estimationB;
         this.estimationC = estimationC;
@@ -49,11 +52,11 @@ public class Task {
     }
 
     public String getDesc() {
-        return desc;
+        return description;
     }
 
     public void setDesc(String desc) {
-        this.desc = desc;
+        this.description = desc;
     }
 
     public String getTitle() {

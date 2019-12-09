@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.TimeZone;
 
 @Entity
+@Embeddable
+@Table(name = "EMPLOYEE")
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
