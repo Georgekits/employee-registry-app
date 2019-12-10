@@ -6,6 +6,7 @@ import com.unisystems.service.UnitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +20,7 @@ public class UnitController {
     }
 
     @GetMapping("/getUnits")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity getAllUnits() {
         GenericResponse<GetAllUnitResponse> finalResponse = unitService.getAllUnits();
         if(finalResponse.getErrors() != null)

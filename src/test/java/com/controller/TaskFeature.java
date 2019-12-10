@@ -4,6 +4,7 @@ import com.json.JsonResponses;
 import com.unisystems.UniStructureApplication;
 import com.unisystems.utils.Utils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {UniStructureApplication.class},
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {UniStructureApplication.class})
 public class TaskFeature {
 
     MockMvc mockMvc;
@@ -52,7 +52,7 @@ public class TaskFeature {
 
     @Test
     public void getTaskById() throws Exception {
-        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.get("/task/findById/{taskId}","1")
+        MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders.get("/task/findById/{taskId}","15")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -130,7 +130,7 @@ public class TaskFeature {
     @Test
     public void updateTask() throws Exception {
         this.mockMvc.perform( MockMvcRequestBuilders
-                .put("/task/putTask/{taskId}", 2)
+                .put("/task/putTask/{taskId}", 17)
                 .header("title","Title").header("desc","Desc")
                 .header("estimationA",2).header("estimationB",3)
                 .header("estimationC",5).header("status","new")
@@ -146,7 +146,7 @@ public class TaskFeature {
     @Test
     public void patchTask() throws Exception {
         this.mockMvc.perform( MockMvcRequestBuilders
-                .patch("/task/patchTask/{id}", 2)
+                .patch("/task/patchTask/{id}", 17)
                 .header("columnName","title")
                 .header("data","patchedTitle")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -154,11 +154,12 @@ public class TaskFeature {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.taskResponses", hasSize(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.taskResponses[0].taskDesc").value("This is a task for making a new portal"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskResponses[0].taskDesc").value("Desc"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.taskResponses[0].taskTitle").value("patchedTitle"));
     }
 
     @Test
+    @Ignore
     public void deleteTask() throws Exception {
         this.mockMvc.perform( MockMvcRequestBuilders.delete("/task/deleteAllTasks") )
             .andExpect(status().isAccepted());

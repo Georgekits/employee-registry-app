@@ -6,6 +6,7 @@ import com.unisystems.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +18,7 @@ public class DepartmentController {
     public DepartmentController(DepartmentService service){this.departmentService=service;}
 
     @GetMapping("/getDepartments")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity getDepartments() {
         GenericResponse<GetAllDepartmentResponse> finalResponse = departmentService.getAllDepartments();
         if(finalResponse.getErrors() != null)

@@ -7,6 +7,7 @@ import com.unisystems.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class TaskController {
     }
 
     @GetMapping("getAll")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity getAll() {
         GenericResponse<GetAllTaskResponse> finalResponse = taskService.getAllTasks();
         if (finalResponse.getErrors() != null)
@@ -33,6 +35,7 @@ public class TaskController {
     }
 
     @GetMapping("findById/{taskId}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity findById(@PathVariable String taskId) {
         GenericResponse<GetTaskByIdResponse> finalResponse = taskService.findById(taskId);
         if (finalResponse.getErrors() != null)
@@ -46,6 +49,7 @@ public class TaskController {
 
     //List with tasks that have this difficulty!!
     @GetMapping("findByDifficulty/{difficulty}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity findByDifficulty(@PathVariable String difficulty) {
         GenericResponse<GetTaskByIdResponse> finalResponse = taskService.findByDifficulty(difficulty.toUpperCase());
         if (finalResponse.getErrors() != null)
@@ -59,6 +63,7 @@ public class TaskController {
 
     //List with tasks that have been used by a specific workforce(assignedEmployees)
     @GetMapping("findByAssignedEmployees/{assignedEmployees}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity findByAssignedEmployees(@PathVariable String assignedEmployees) {
         GenericResponse<GetTaskByIdResponse> finalResponse = taskService.findByAssignedEmployees(assignedEmployees);
         if (finalResponse.getErrors() != null)
@@ -72,6 +77,7 @@ public class TaskController {
 
     //List with tasks that have been used by a specific workforce(assignedEmployees) AND difficulty
     @GetMapping("findByAssignedEmployeesAndDifficulty/{difficulty}/{assignedEmployees}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity findByAssignedEmployeesAndDifficulty(@PathVariable String assignedEmployees,
                                                                @PathVariable String difficulty) {
         GenericResponse<GetTaskByIdResponse> finalResponse = taskService.findByAssignedEmployeesAndDifficulty(assignedEmployees, difficulty.toUpperCase());
@@ -85,6 +91,7 @@ public class TaskController {
     }
 
     @PostMapping("postTask")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity setTask(@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
                                   @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status,
                                   @RequestHeader String updates ,@RequestHeader String employees) {
@@ -100,6 +107,7 @@ public class TaskController {
     }
 
     @PutMapping("putTask/{taskId}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity putTask(@PathVariable String taskId, @RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
                                   @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status,
                                   @RequestHeader String updates, @RequestHeader String employees) {
@@ -116,6 +124,7 @@ public class TaskController {
     }
 
     @PatchMapping("patchTask/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity patchTask(@PathVariable String id, @RequestHeader String columnName, @RequestHeader String data) {
         GenericResponse<GetTaskByIdResponse> finalResponse = taskService.patchTask(id, columnName, data);
         if (finalResponse.getErrors() != null)
@@ -129,6 +138,7 @@ public class TaskController {
     }
 
     @DeleteMapping("deleteAllTasks")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity deleteAllTasks() {
         GenericResponse<String> finalResponse = taskService.deleteAllTasks();
         if(finalResponse.getErrors() == null) {
@@ -145,6 +155,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/deleteTask/{taskId}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity deleteTaskById(@PathVariable String taskId) {
         GenericResponse<String> finalResponse = taskService.deleteTaskById(taskId);
         if(finalResponse.getErrors() == null) {

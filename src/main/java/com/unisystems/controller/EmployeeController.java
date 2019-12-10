@@ -6,6 +6,7 @@ import com.unisystems.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/getEmployees")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity getEmployees() {
         GenericResponse<GetAllEmployeeResponse> finalResponse = employeeService.getAllEmployees();
         if(finalResponse.getErrors() != null)
@@ -32,6 +34,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/getEmployees/{searchCriteria}/{criteriaId}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity getEmployeeWithCriteria(@PathVariable String searchCriteria,
                                                           @PathVariable String criteriaId) {
         GenericResponse<GetAllEmployeeResponse> finalResponse = employeeService.getEmployeesWithCriteria(searchCriteria,criteriaId);
