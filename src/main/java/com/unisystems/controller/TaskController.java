@@ -91,7 +91,7 @@ public class TaskController {
     }
 
     @PostMapping("postTask")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity setTask(@RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
                                   @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status,
                                   @RequestHeader String updates ,@RequestHeader String employees) {
@@ -107,7 +107,7 @@ public class TaskController {
     }
 
     @PutMapping("putTask/{taskId}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity putTask(@PathVariable String taskId, @RequestHeader String title, @RequestHeader String desc, @RequestHeader String estimationA,
                                   @RequestHeader String estimationB, @RequestHeader String estimationC, @RequestHeader String status,
                                   @RequestHeader String updates, @RequestHeader String employees) {
@@ -124,7 +124,7 @@ public class TaskController {
     }
 
     @PatchMapping("patchTask/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity patchTask(@PathVariable String id, @RequestHeader String columnName, @RequestHeader String data) {
         GenericResponse<GetTaskByIdResponse> finalResponse = taskService.patchTask(id, columnName, data);
         if (finalResponse.getErrors() != null)
@@ -138,7 +138,7 @@ public class TaskController {
     }
 
     @DeleteMapping("deleteAllTasks")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity deleteAllTasks() {
         GenericResponse<String> finalResponse = taskService.deleteAllTasks();
         if(finalResponse.getErrors() == null) {
@@ -155,7 +155,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/deleteTask/{taskId}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity deleteTaskById(@PathVariable String taskId) {
         GenericResponse<String> finalResponse = taskService.deleteTaskById(taskId);
         if(finalResponse.getErrors() == null) {

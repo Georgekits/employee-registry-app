@@ -16,7 +16,7 @@ public class BusinessUnitController {
     BusinessUnitService businessUnitService;
 
     @GetMapping("/getBusinessUnits")
-    @PreAuthorize("hasAnyRole('EMPLOYEE') or hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ResponseEntity getBusinessUnits() {
         GenericResponse<GetAllBusinessUnitResponse> finalResponse = businessUnitService.getBusinessUnits();
         if(finalResponse.getErrors() != null)
