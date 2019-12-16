@@ -1,4 +1,4 @@
-# mind-the-code-UniStructure
+# mind-the-code-registry-app
 
 Record the operational requirements for implementing a Registry application.The employee is the key entity for a number of applications.
 The main purpose of the registry-app is to expose information based on the structure of a company. The layers that are exposed are:
